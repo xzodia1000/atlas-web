@@ -2,17 +2,16 @@ import Head from 'next/head';
 import { FormEvent, useState } from 'react';
 import client from '../lib/axios-service';
 import { useMutation } from 'react-query';
-import { useSessionUpdateContext } from '../lib/context';
+import { useAuthContext } from '../lib/auth-context';
 import { useRouter } from 'next/router';
 
 export default function Home() {
   const router = useRouter();
+  const { setToken } = useAuthContext();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
-
-  const UpdateContext = useSessionUpdateContext();
 
   const { mutate: validateLogin } = useMutation<any, Error>({
     mutationFn: async () => {
@@ -32,7 +31,7 @@ export default function Home() {
         console.log('token saved in session storage');
       }
 
-      UpdateContext;
+      setToken(token);
       router.push('/');
     },
     onError: async (err) => {

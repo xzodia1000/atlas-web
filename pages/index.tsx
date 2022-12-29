@@ -1,10 +1,10 @@
 import Head from 'next/head';
-import { useRedirectPageContext } from '../lib/context';
-import { useSessionContext } from '../lib/context';
+import { useAuthContext } from '../lib/auth-context';
 
 export default function Home() {
-  useRedirectPageContext();
-  console.log(useSessionContext());
+  const { token } = useAuthContext();
+
+  console.log(token);
 
   return (
     <>
