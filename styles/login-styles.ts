@@ -11,28 +11,29 @@ export const LoginButton = chakra(Button, {
     shadow: 'lg',
     fontSize: '20px',
 
-    _hover: { bgColor: 'accent_red', color: 'accent_white' }
+    _hover: { bgColor: 'accent_red', color: 'accent_white' },
+    isLoading: {
+      bgColor: 'accent_red'
+    }
   }
 });
 
 export const InputField = chakra(Input, {
   baseStyle: {
-    size: 'lg',
     h: '50px',
-    w: '500px',
+    w: '450px',
     borderRadius: '8px',
     bgColor: '#F5F5F5',
     border: '3px solid',
     borderColor: 'accent_blue',
 
     _hover: { border: '3px solid', borderColor: 'accent_yellow' },
-    _focus: { border: '3px solid', borderColor: 'accent_yellow', boxShadow: 'none' }
+    _focus: { border: '3px solid', borderColor: 'accent_yellow', shadow: 'xl' }
   }
 });
 
 export const RememberMe = chakra(Checkbox, {
   baseStyle: {
-    mb: '20px',
     colorScheme: 'accent_yellow',
     borderColor: 'accent_blue'
   }
