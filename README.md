@@ -38,7 +38,7 @@ _IMPORTANT NOTES:_
   ```
   yarn : File C:\Users\User\AppData\Roaming\npm\yarn.ps1 cannot be loaded because running scripts is disabled on this system. For more information, see about_Execution_Policies at  https:/go.microsoft.com/fwlink/?LinkID=135170.
   ```
-        Run `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted` in powershell with admin powers.
+  Run `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted` in powershell with admin powers.
 - Follow the steps [here](https://yarnpkg.com/getting-started/editor-sdks#editor-setup) to set up `yarn` for your editor.
 - Clone this repo and run `yarn` inside the cloned directory.
 - Run the development server using `yarn dev` and open [http://localhost:3001](http://localhost:3001).
