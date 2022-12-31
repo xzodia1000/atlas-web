@@ -1,36 +1,62 @@
+# atlas-web
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
 
-First, run the development server:
+### **Setting up backend server**
 
-```bash
-npm run dev
-# or
-yarn dev
+- Install and setup MySQL from [here](https://dev.mysql.com/downloads/installer/).
+- Create a database named `atlas`. (Query: `CREATE DATABASE atlas;`).
+- Clone the `atlas-backend` repo.
+- Run `npm i` inside the cloned repo.
+- Make a file named `.env` and fill out the below variables with your MySQL setup:
+
+```
+DATABASE_HOST=localhost
+DATABASE_USERNAME=your_sql_username
+DATABASE_PASSWORD=your_sql_password
+DATABASE_NAME=atlas
+SECRET=any_random_value
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Run `npm run typeorm:run-migrations` to sync the database and tables to your local MySQL sevrver.
+- To start the server, run `npm start`.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+_IMPORTANT NOTES:_
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+- Do not forget your MySQL password.
+- Run `git pull` regularly to be updated with the backend end.
+- Do not make any changes to the backend code without the backend team's permission.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+### **Setting up the web frontend for development**
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- Install nodejs version [18.12.1 LTS](https://nodejs.org/dist/v18.12.1/node-v18.12.1-x64.msi) from [here](https://nodejs.org/en/).
+- Install `yarn` by following the below steps:
+  - Run `corepack enable` in a terminal with admin powers.
+  - Try running `yarn --version` in a terminal. If met with an error similar to
+  ```
+  yarn : File C:\Users\User\AppData\Roaming\npm\yarn.ps1 cannot be loaded because running scripts is disabled on this system. For more information, see about_Execution_Policies at  https:/go.microsoft.com/fwlink/?LinkID=135170.
+  ```
+        Run `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted` in powershell with admin powers.
+- Follow the steps [here](https://yarnpkg.com/getting-started/editor-sdks#editor-setup) to set up `yarn` for your editor.
+- Clone this repo and run `yarn` inside the cloned directory.
+- Run the development server using `yarn dev` and open [http://localhost:3001](http://localhost:3001).
 
-## Learn More
+_IMPORTANT NOTES:_
 
-To learn more about Next.js, take a look at the following resources:
+- Create a branch for every feature you are working on.
+- Name the branch based on the feature.
+- Open a pull request before merging to `master` branch.
+- Run `git pull` regularly to be updated with the `master` branch.
+- Create a `feature_name-styles.ts` file under the styles directory to write styles for your pages. Check `styles/login-styles.ts` for an example.
+
+## Tools
+
+Documentaion of the tools that are being used in the project. (They have been already added to the project)
 
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- [Axios Documentation](https://axios-http.com/docs/intro) - to communicate with the backend.
+- [tanstack/react-query Documentaion](https://tanstack.com/query/v4/docs) - to handle the response from the backend.
+- [Context API](https://reactjs.org/docs/context.html) - to replicate state management.
+- [Chakra UI](https://chakra-ui.com/getting-started) - for replacing CSS to design the website.
