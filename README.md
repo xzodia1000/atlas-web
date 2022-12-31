@@ -26,6 +26,7 @@ SECRET=any_random_value
 _IMPORTANT NOTES:_
 
 - Do not forget your MySQL password.
+- Setup Postman to manage the backend API and data for testing.
 - Run `git pull` regularly to be updated with the backend end.
 - Do not make any changes to the backend code without the backend team's permission.
 

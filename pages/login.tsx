@@ -4,7 +4,7 @@ import Image from 'next/image';
 import client from '../lib/axios-service';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { Center, FormControl, FormLabel, SimpleGrid, Stack } from '@chakra-ui/react';
+import { Center, FormControl, FormLabel, SimpleGrid } from '@chakra-ui/react';
 import { LoginButton, InputField, RememberMe } from '../styles/login-styles';
 
 export default function Home() {
