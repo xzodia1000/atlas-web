@@ -20,7 +20,7 @@ import {
   SimpleGrid
 } from '@chakra-ui/react';
 
-export default function Home() {
+export default function Login() {
   // Router instance to redirect user to home page after login
   const router = useRouter();
 
@@ -105,8 +105,12 @@ export default function Home() {
       <Center h="100vh">
         <form onSubmit={postData}>
           <SimpleGrid>
-            <Center mb={10}>
+            <Center mb={2}>
               <Image src="/logo.png" alt="logo" width={150} height={150} />
+            </Center>
+
+            <Center mb={5} fontSize={30} fontWeight="bold">
+              atlas.
             </Center>
 
             <FormControl isInvalid={invalidEmail} mb={4}>

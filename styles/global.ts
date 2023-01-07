@@ -10,6 +10,7 @@ export const global_theme = extendTheme({
       'html, body': {
         fontFamily: lexenddeca.style.fontFamily,
         backgroundColor: '#F5F5F5',
+        // backgroundColor: '#0f0f0f',
         color: 'accent_blue'
       }
     }

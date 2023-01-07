@@ -11,10 +11,7 @@ export const LoginButton = chakra(Button, {
     shadow: 'lg',
     fontSize: '20px',
 
-    _hover: { bgColor: 'accent_red', color: 'accent_white' },
-    isLoading: {
-      bgColor: 'accent_red'
-    }
+    _hover: { bgColor: 'accent_red', color: 'accent_white' }
   }
 });
 

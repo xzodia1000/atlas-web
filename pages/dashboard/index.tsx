@@ -1,7 +1,6 @@
 import Head from 'next/head';
 
 export default function Dashboard() {
-  //TODO: Add dashboard page
   return (
     <>
       <Head>

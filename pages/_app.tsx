@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ChakraProvider } from '@chakra-ui/react';
 import { global_theme } from '../styles/global';
+import Layout from '../components/layout';
 
 export default function App({ Component, pageProps }: AppProps) {
   // Dynamic import of AuthProvider component to prevent SSR
@@ -24,7 +25,9 @@ export default function App({ Component, pageProps }: AppProps) {
     <ChakraProvider theme={global_theme}>
       <AuthProviderComponent>
         <QueryClientProvider client={queryClient}>
-          <Component {...pageProps} />
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
         </QueryClientProvider>
       </AuthProviderComponent>
     </ChakraProvider>

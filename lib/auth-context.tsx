@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import { useState, useContext, createContext } from 'react';
+import client from './axios-service';
 
 // Auth context data
 interface AuthContextData {
@@ -33,6 +34,9 @@ export function AuthProvider({ children }: any) {
     // Set flag to null if not present
     flag = null;
   }
+
+  // Set token in axios headers
+  client.defaults.headers.common['Authorization'] = `Bearer ${flag}`;
 
   // State variable to store token
   const [token, setToken] = useState(flag);
