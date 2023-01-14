@@ -10,7 +10,7 @@ export default function Dashboard() {
         <link rel="icon" href="/logo.png" />
       </Head>
 
-      <h1>Dashboard</h1>
+      <h1>Home</h1>
     </>
   );
 }

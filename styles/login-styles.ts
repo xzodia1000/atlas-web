@@ -24,8 +24,8 @@ export const InputField = chakra(Input, {
     border: '3px solid',
     borderColor: 'accent_blue',
 
-    _hover: { border: '3px solid', borderColor: 'accent_yellow' },
-    _focus: { border: '3px solid', borderColor: 'accent_yellow', shadow: 'xl' }
+    _hover: { borderColor: 'accent_yellow' },
+    _focus: { borderColor: 'accent_yellow', shadow: 'xl' }
   }
 });
 

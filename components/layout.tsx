@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import Navbar from './navbar';
+import SidebarWithHeader from './navbar';
 
 export default function Layout({ children }: any) {
   const router = useRouter();
@@ -37,7 +37,7 @@ export default function Layout({ children }: any) {
 
   return (
     <>
-      {loginNav && Navbar(title)}
+      {loginNav && SidebarWithHeader}
       <main>{children}</main>
     </>
   );

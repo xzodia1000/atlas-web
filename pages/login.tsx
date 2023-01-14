@@ -67,7 +67,7 @@ export default function Login() {
       }
 
       // Redirect user to home page
-      router.push('/dashboard');
+      router.push('/dashboard#home');
     },
 
     // Callbacks to handle error
