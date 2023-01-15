@@ -1,27 +1,50 @@
-import {
-  Button,
-  FormControl,
-  FormLabel,
-  InputGroup,
-  InputRightElement,
-  SimpleGrid
-} from '@chakra-ui/react';
+import { FormLabel, SimpleGrid, useToast } from '@chakra-ui/react';
 import { useMutation } from '@tanstack/react-query';
 import { FormEvent, useState } from 'react';
 import client from '../../lib/axios-service';
-import { InputField, LoginButton } from '../../styles/login-styles';
-import Login from '../../pages/login';
+import { Field, InputField, SubmitButton } from '../../styles/settings-styles';
 
 export default function ChangePassword() {
+  const toast = useToast();
+  const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState(false);
-
-  const [show, setShow] = useState(false);
-  const handleClick = () => setShow(!show);
 
   const { isLoading: updating, mutate: updatePassword } = useMutation<any, Error>({
     mutationFn: async () => {
+      if (newPassword.length < 8) {
+        toast({
+          title: 'Error',
+          description: 'Password must be at least 8 characters.',
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+          position: 'bottom-right'
+        });
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        toast({
+          title: 'Error',
+          description: 'Passwords do not match.',
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+          position: 'bottom-right'
+        });
+        return;
+      }
+      if (oldPassword === newPassword) {
+        toast({
+          title: 'Error',
+          description: 'New password cannot be the same as old password.',
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+          position: 'bottom-right'
+        });
+        return;
+      }
       return await client.patch('/user/password', {
         password: newPassword,
         confirmPassword
@@ -42,45 +65,40 @@ export default function ChangePassword() {
     <>
       <form onSubmit={postData}>
         <SimpleGrid>
-          <FormControl mb={4}>
-            <FormLabel>New Password</FormLabel>
-            <InputGroup>
-              <InputField
-                value={newPassword}
-                onChange={(e: any) => setNewPassword(e.target.value)}
-                type={show ? 'text' : 'password'}
-                pr="4.5rem"
-                required
-                placeholder="Enter new password"
-              />
-              <InputRightElement width="4.5rem">
-                <Button h="1.75rem" size="sm" onClick={handleClick}>
-                  {show ? 'Hide' : 'Show'}
-                </Button>
-              </InputRightElement>
-            </InputGroup>
-          </FormControl>
-          <FormControl mb={6}>
-            <FormLabel>Confirm Password</FormLabel>
-            <InputGroup>
-              <InputField
-                value={confirmPassword}
-                onChange={(e: any) => setConfirmPassword(e.target.value)}
-                type={show ? 'text' : 'password'}
-                required
-                placeholder="Confirm new password"
-              />
-              <InputRightElement width="4.5rem">
-                <Button h="1.75rem" size="sm" onClick={handleClick}>
-                  {show ? 'Hide' : 'Show'}
-                </Button>
-              </InputRightElement>
-            </InputGroup>
-          </FormControl>
+          <Field>
+            <FormLabel w={150}>Old Password</FormLabel>
+            <InputField
+              value={oldPassword}
+              onChange={(e: any) => setOldPassword(e.target.value)}
+              type={'password'}
+              required
+              placeholder="Enter new password"
+            />
+          </Field>
+          <Field>
+            <FormLabel w={150}>New Password</FormLabel>
+            <InputField
+              value={newPassword}
+              onChange={(e: any) => setNewPassword(e.target.value)}
+              type={'password'}
+              required
+              placeholder="Enter new password"
+            />
+          </Field>
+          <Field>
+            <FormLabel w={150}>Confirm Password</FormLabel>
+            <InputField
+              value={confirmPassword}
+              onChange={(e: any) => setConfirmPassword(e.target.value)}
+              type={'password'}
+              required
+              placeholder="Confirm new password"
+            />
+          </Field>
         </SimpleGrid>
-        <LoginButton isLoading={updating} type="submit">
-          Submit
-        </LoginButton>
+        <SubmitButton isLoading={updating} type="submit">
+          Change Password
+        </SubmitButton>
       </form>
     </>
   );
