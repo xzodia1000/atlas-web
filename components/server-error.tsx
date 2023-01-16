@@ -9,7 +9,7 @@ import {
 import { IconHome } from '@tabler/icons';
 import router from 'next/router';
 import { useRef } from 'react';
-import { SubmitButton } from '../styles/settings-styles';
+import { SubmitButton } from '../styles/components-styles';
 
 export default function ServerError() {
   const cancelRef = useRef(null);

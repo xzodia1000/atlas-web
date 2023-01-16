@@ -3,7 +3,7 @@ import { IconPencil, IconUpload } from '@tabler/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import client from '../../lib/axios-service';
-import { SubmitButton, EditButton } from '../../styles/settings-styles';
+import { SubmitButton, EditButton } from '../../styles/components-styles';
 import ServerError from '../server-error';
 
 export default function EditProfile() {

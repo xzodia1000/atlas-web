@@ -9,7 +9,8 @@ export const global_theme = extendTheme({
     global: {
       'html, body': {
         fontFamily: lexenddeca.style.fontFamily,
-        color: 'accent_white'
+        color: 'accent_white',
+        backgroundColor: 'gray.800'
       }
     }
   },

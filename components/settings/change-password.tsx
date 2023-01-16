@@ -2,52 +2,68 @@ import { FormLabel, SimpleGrid, useToast } from '@chakra-ui/react';
 import { useMutation } from '@tanstack/react-query';
 import { FormEvent, useState } from 'react';
 import client from '../../lib/axios-service';
-import { Field, InputField, SubmitButton } from '../../styles/settings-styles';
+import { Field, InputField, SubmitButton } from '../../styles/components-styles';
 
 export default function ChangePassword() {
   const toast = useToast();
-  const [oldPassword, setOldPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const { isLoading: updating, mutate: updatePassword } = useMutation<any, Error>({
     mutationFn: async () => {
       if (newPassword.length < 8) {
-        toast({
-          title: 'Error',
-          description: 'Password must be at least 8 characters.',
-          status: 'error',
-          duration: 9000,
-          isClosable: true,
-          position: 'bottom-right'
-        });
-        return;
+        throw {
+          response: {
+            data: {
+              message: 'Password must be at least 8 characters.'
+            }
+          }
+        };
       }
       if (newPassword !== confirmPassword) {
-        toast({
-          title: 'Error',
-          description: 'Passwords do not match.',
-          status: 'error',
-          duration: 9000,
-          isClosable: true,
-          position: 'bottom-right'
-        });
-        return;
+        throw {
+          response: {
+            data: {
+              message: 'Passwords do not match.'
+            }
+          }
+        };
       }
-      if (oldPassword === newPassword) {
-        toast({
-          title: 'Error',
-          description: 'New password cannot be the same as old password.',
-          status: 'error',
-          duration: 9000,
-          isClosable: true,
-          position: 'bottom-right'
-        });
-        return;
+      if (currentPassword === newPassword) {
+        throw {
+          response: {
+            data: {
+              message: 'New password cannot be the same as old password.'
+            }
+          }
+        };
       }
+
       return await client.patch('/user/password', {
+        currentPassword,
         password: newPassword,
         confirmPassword
+      });
+    },
+    onSuccess: async () => {
+      return toast({
+        title: 'Success!',
+        description: 'Password has been updated',
+        status: 'success',
+        duration: 9000,
+        isClosable: true,
+        position: 'bottom-right'
+      });
+    },
+    onError: async (error: any) => {
+      return toast({
+        title: 'Error',
+        description: error.response.data.message,
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        position: 'bottom-right'
       });
     }
   });
@@ -66,10 +82,10 @@ export default function ChangePassword() {
       <form onSubmit={postData}>
         <SimpleGrid>
           <Field>
-            <FormLabel w={150}>Old Password</FormLabel>
+            <FormLabel w={150}>Current Password</FormLabel>
             <InputField
-              value={oldPassword}
-              onChange={(e: any) => setOldPassword(e.target.value)}
+              value={currentPassword}
+              onChange={(e: any) => setCurrentPassword(e.target.value)}
               type={'password'}
               required
               placeholder="Enter new password"

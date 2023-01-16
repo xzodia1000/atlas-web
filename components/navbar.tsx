@@ -26,12 +26,15 @@ import {
   IconHome,
   IconMessageReport,
   IconChevronDown,
-  IconReport
+  IconReport,
+  IconSettings,
+  IconLogout
 } from '@tabler/icons';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { ReactNode } from 'react';
 import client from '../lib/axios-service';
+import SignOut from '../lib/sign-out';
 
 const components = [
   {
@@ -224,16 +227,23 @@ const TopBar = () => {
                   bg: 'accent_red',
                   color: 'white'
                 }}>
-                Settings
+                <Flex alignItems="center" gap="2">
+                  <IconSettings />
+                  Settings
+                </Flex>
               </MenuItem>
               <MenuDivider />
               <MenuItem
+                onClick={() => SignOut(router)}
                 bg={'gray.900'}
                 _hover={{
                   bg: 'accent_red',
                   color: 'white'
                 }}>
-                Sign out
+                <Flex alignItems="center" gap="2">
+                  <IconLogout />
+                  Sign out
+                </Flex>
               </MenuItem>
             </MenuList>
           </Menu>

@@ -1,12 +1,12 @@
-import { Box, TabPanels, TabPanel, Flex, Text } from '@chakra-ui/react';
+import { Box, Flex, Spacer, Text } from '@chakra-ui/react';
 import Head from 'next/head';
-import { GoHomeButton } from '../styles/settings-styles';
-import { IconHome } from '@tabler/icons';
+import { GoHomeButton } from '../styles/components-styles';
+import { IconHome, IconLogout } from '@tabler/icons';
 import { useRouter } from 'next/router';
 import { NextPage } from 'next';
 import { useEffect, useRef, useState } from 'react';
-import { title } from 'process';
 import dynamic from 'next/dynamic';
+import SignOut from '../lib/sign-out';
 
 // Dynamic imports
 const EditProfile = dynamic(() =>
@@ -78,7 +78,7 @@ const Settings: NextPage = () => {
       return;
     }
     const component = components.filter(
-      (component) => component.name === regex.exec(router.asPath)?.[1] ?? 'home'
+      (component) => component.name === regex.exec(router.asPath)?.[1] ?? 'edit-profile'
     );
     if (component.length > 0) {
       setActiveComponent(component[0].component);
@@ -119,10 +119,11 @@ const Settings: NextPage = () => {
 const SideBar = () => {
   const router = useRouter();
   return (
-    <Box
+    <Flex
       pos={'fixed'}
       h={'100vh'}
       w={'240px'}
+      direction={'column'}
       bgColor={'gray.900'}
       borderRight="1px"
       borderRightColor={'gray.700'}>
@@ -138,7 +139,12 @@ const SideBar = () => {
       {components.map((component) => (
         <Flex
           key={component.name}
-          className={router.asPath.split('#')[1] === component.name ? 'isActive' : ''}
+          className={
+            router.asPath.split('#')[1] === component.name ||
+            (router.asPath === '/settings' && component.name === 'edit-profile')
+              ? 'isActive'
+              : ''
+          }
           align="center"
           p="4"
           mx="4"
@@ -160,7 +166,24 @@ const SideBar = () => {
           {component.title}
         </Flex>
       ))}
-    </Box>
+      <Spacer />
+      <Flex
+        onClick={() => SignOut(router)}
+        mx="8"
+        p="4"
+        mb="20px"
+        alignItems="center"
+        gap="2"
+        cursor="pointer"
+        rounded="10px"
+        _hover={{
+          bgColor: 'accent_red',
+          color: 'white'
+        }}>
+        <IconLogout size={30} />
+        Sign out
+      </Flex>
+    </Flex>
   );
 };
 
@@ -169,7 +192,7 @@ const TopBar = () => {
   // Set title
   const title =
     components.find((component) => component.name === router.asPath.split('#')[1])?.title ??
-    'Dashboard';
+    'Edit Profile';
   return (
     <Box
       pos={'fixed'}

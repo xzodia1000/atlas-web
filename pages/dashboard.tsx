@@ -3,7 +3,6 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
-// import Navbar from '../../components/navbar';
 
 // Dynamic imports
 const HomeComponent = dynamic(() =>
@@ -112,7 +111,7 @@ const Dashboard: NextPage = () => {
         <title>atlas - {title}</title>
         <meta name="description" content={title + ' page for atlas admin panel'} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/logo.png" />{' '}
+        <link rel="icon" href="/logo.png" />
       </Head>
       <NavbarComponent>{activeComponent}</NavbarComponent>
     </>

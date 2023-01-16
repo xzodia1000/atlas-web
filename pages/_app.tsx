@@ -1,6 +1,6 @@
 import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import { ChakraProvider } from '@chakra-ui/react';
 import { global_theme } from '../styles/global';
 
@@ -10,23 +10,21 @@ const AuthProviderComponent = dynamic(
   { ssr: false }
 );
 
-// Create query client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false
-    }
-  }
-});
+// Dynamic import of QueryClientProvider component to prevent SSR
+const QueryClientProvider = dynamic(() =>
+  import('@tanstack/react-query').then((mod) => mod.QueryClientProvider)
+);
 
 export default function App({ Component, pageProps }: AppProps) {
+  // Create query client
+  const queryClient = new QueryClient();
   return (
-    <ChakraProvider theme={global_theme}>
+    <QueryClientProvider client={queryClient}>
       <AuthProviderComponent>
-        <QueryClientProvider client={queryClient}>
+        <ChakraProvider theme={global_theme}>
           <Component {...pageProps} />
-        </QueryClientProvider>
+        </ChakraProvider>
       </AuthProviderComponent>
-    </ChakraProvider>
+    </QueryClientProvider>
   );
 }

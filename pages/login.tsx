@@ -1,10 +1,9 @@
 import Head from 'next/head';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { FormEvent, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import client from '../lib/axios-service';
-import { LoginButton, InputField, RememberMe } from '../styles/login-styles';
+import { InputField, RememberMe } from '../styles/components-styles';
 import {
   AlertDialog,
   AlertDialogBody,
@@ -14,11 +13,16 @@ import {
   AlertDialogHeader,
   AlertDialogOverlay,
   Center,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
-  SimpleGrid
+  SimpleGrid,
+  useToast,
+  Text,
+  Image
 } from '@chakra-ui/react';
+import { SubmitButton } from '../styles/components-styles';
 
 export default function Login() {
   // Router instance to redirect user to home page after login
@@ -26,6 +30,9 @@ export default function Login() {
 
   // Ref to close alert dialog
   const cancelRef = useRef(null);
+
+  // Chakra UI toast
+  const toast = useToast();
 
   // State variables to store email, password and remember me checkbox
   const [email, setEmail] = useState('');
@@ -37,12 +44,15 @@ export default function Login() {
   const [invalidEmail, setInvalidEmail] = useState(false);
   const [invalidPassword, setInvalidPassword] = useState(false);
 
+  const [signingIn, setSigningIn] = useState(false);
+
   // React Query
   const { isLoading: validating, mutate: validateLogin } = useMutation<any, Error>({
     // Mutation function to validate login
     mutationFn: async () => {
       setInvalidEmail(false);
       setInvalidPassword(false);
+      setSigningIn(true);
 
       // Axios post request to validate login
       return await client.post('/auth/login', {
@@ -52,7 +62,9 @@ export default function Login() {
     },
 
     // Callbacks to handle success
-    onSuccess: async (response) => {
+    onSuccess: (response) => {
+      setSigningIn(true);
+
       // Get token from response
       const token = response.data.access_token;
 
@@ -66,12 +78,23 @@ export default function Login() {
         console.log('token saved in session storage');
       }
 
-      // Redirect user to home page
-      router.push('/dashboard#home');
+      // Redirect user to dashboard after a delay
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 2e3);
+
+      toast({
+        title: 'Login successful',
+        description: 'Redirecting to dashboard',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+        position: 'bottom-right'
+      });
     },
 
     // Callbacks to handle error
-    onError: async (err: any) => {
+    onError: (err: any) => {
       try {
         if (err.response.status === 500) {
           setInvalidEmail(true);
@@ -102,15 +125,44 @@ export default function Login() {
         <link rel="icon" href="/logo.png" />
       </Head>
 
+      <Flex
+        h="60px"
+        w="175px"
+        bg={'accent_yellow'}
+        alignItems="center"
+        rounded={'10px'}
+        position="fixed"
+        mt="10px"
+        ml="10px">
+        <Image src={'/logo.png'} alt="logo" ml="5px" h={'50px'} w={'50px'} rounded={'10px'} />
+        <Flex direction={'column'}>
+          <Text ml="2" fontSize="xl" color={'accent_blue'}>
+            atlas.
+          </Text>
+          <Text ml="2" fontSize="xs" color="accent_blue">
+            Admin Panel
+          </Text>
+        </Flex>
+      </Flex>
+
       <Center h="100vh">
         <form onSubmit={postData}>
           <SimpleGrid>
-            <Center mb={2}>
-              <Image src="/logo.png" alt="logo" width={150} height={150} />
-            </Center>
-
-            <Center mb={5} fontSize={30} fontWeight="bold">
-              atlas.
+            <Center mb={5}>
+              <Flex
+                h={'calc(100% + 20px)'}
+                w={170}
+                direction="column"
+                alignItems="center"
+                justifyContent="center"
+                gap="2px"
+                rounded="10px"
+                bgColor="accent_yellow">
+                <Image src="/logo.png" alt="logo" width={150} height={150} />
+                <Text fontSize={30} fontWeight="bold" color="accent_blue">
+                  atlas.
+                </Text>
+              </Flex>
             </Center>
 
             <FormControl isInvalid={invalidEmail} mb={4}>
@@ -150,9 +202,9 @@ export default function Login() {
             </RememberMe>
 
             <Center>
-              <LoginButton isLoading={validating} type="submit">
+              <SubmitButton mt="0" isLoading={validating || signingIn} type="submit">
                 Login
-              </LoginButton>
+              </SubmitButton>
             </Center>
           </SimpleGrid>
         </form>

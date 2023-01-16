@@ -1,4 +1,4 @@
-import { Button, chakra, Flex, Input, Tab } from '@chakra-ui/react';
+import { Button, chakra, Checkbox, Flex, Input, Tab } from '@chakra-ui/react';
 import { Rubik } from '@next/font/google';
 
 const rubik = Rubik();
@@ -67,7 +67,8 @@ export const SubmitButton = chakra(Button, {
     fontSize: '20px',
     fontWeight: '450',
 
-    _hover: { bgColor: 'accent_red', color: 'white' }
+    _hover: { bgColor: 'accent_red', color: 'white' },
+    _loading: { _hover: { bgColor: 'accent_yellow', color: 'accent_blue' } }
   }
 });
 
@@ -82,5 +83,11 @@ export const EditButton = chakra(Button, {
     fontWeight: '450',
 
     _hover: { cursor: 'pointer', color: 'accent_red', bgColor: 'gray.800' }
+  }
+});
+
+export const RememberMe = chakra(Checkbox, {
+  baseStyle: {
+    borderColor: 'accent_yellow'
   }
 });

@@ -13,7 +13,7 @@ import { IconDownload } from '@tabler/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { FormEvent, useState } from 'react';
 import client from '../../lib/axios-service';
-import { Field, InputField, SubmitButton } from '../../styles/settings-styles';
+import { Field, InputField, SubmitButton } from '../../styles/components-styles';
 import ServerError from '../server-error';
 
 export default function EditProfile() {
@@ -38,6 +38,9 @@ export default function EditProfile() {
     setDateOfBirth(data.dateOfBirth.substring(0, 10));
     setPhoneNumber(data.phoneNumber);
     setAddress(data.address);
+
+    console.log(gender);
+    console.log(dateOfBirth);
 
     return data;
   }
@@ -128,7 +131,7 @@ export default function EditProfile() {
             </Field>
             <Field>
               <FormLabel w={150}>Gender</FormLabel>
-              <RadioGroup defaultValue={gender} onClick={(e: any) => setGender(e.target.value)}>
+              <RadioGroup value={gender} onClick={(e: any) => setGender(e.target.value)}>
                 <Stack spacing={5} direction="row">
                   <Radio value="male">Male</Radio>
                   <Radio value="female">Female</Radio>

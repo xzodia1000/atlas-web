@@ -1,5 +1,3 @@
-import Head from 'next/head';
-
 const Events = () => {
   //TODO: Add events page
   return (
