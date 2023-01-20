@@ -17,7 +17,13 @@ const QueryClientProvider = dynamic(() =>
 
 export default function App({ Component, pageProps }: AppProps) {
   // Create query client
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false
+      }
+    }
+  });
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProviderComponent>

@@ -35,6 +35,7 @@ import { useRouter } from 'next/router';
 import { ReactNode } from 'react';
 import client from '../lib/axios-service';
 import SignOut from '../lib/sign-out';
+import ServerError from './server-error';
 
 const components = [
   {
@@ -203,10 +204,11 @@ const TopBar = () => {
           <Menu>
             <MenuButton py={2} transition="all 0.3s" _focus={{ boxShadow: 'none' }}>
               <HStack>
-                {profileLoading && <SkeletonCircle size={'32px'} />}
+                {(profileLoading || profileError) && <SkeletonCircle size={'32px'} />}
                 {profileSuccess && <Avatar size={'sm'} src={profileData.profilePictureUrl} />}
                 <VStack display="flex" alignItems="flex-start" spacing="1px" ml="2">
-                  {profileLoading && <Skeleton h="15px" w={100} />}
+                  {(profileLoading || profileError) && <Skeleton h="15px" w={100} />}
+                  {profileError && <ServerError />}
                   {profileSuccess && (
                     <Text fontSize="sm">{profileData.firstName + ' ' + profileData.lastName}</Text>
                   )}

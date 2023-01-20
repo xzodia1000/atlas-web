@@ -1,4 +1,16 @@
-import { Button, chakra, Checkbox, Flex, Input, Tab } from '@chakra-ui/react';
+import {
+  Button,
+  chakra,
+  Checkbox,
+  Flex,
+  IconButton,
+  Input,
+  MenuItem,
+  MenuList,
+  Tab,
+  Td,
+  Th
+} from '@chakra-ui/react';
 import { Rubik } from '@next/font/google';
 
 const rubik = Rubik();
@@ -89,5 +101,81 @@ export const EditButton = chakra(Button, {
 export const RememberMe = chakra(Checkbox, {
   baseStyle: {
     borderColor: 'accent_yellow'
+  }
+});
+
+export const SmallButton = chakra(IconButton, {
+  baseStyle: {
+    color: 'accent_blue',
+    bgColor: 'accent_yellow',
+    _hover: { bgColor: 'accent_red', color: 'white' },
+    _disabled: { _hover: { bgColor: 'accent_yellow', color: 'accent_blue' } }
+  }
+});
+
+export const TableHeader = chakra(Th, {
+  baseStyle: {
+    maxW: '200px',
+    fontSize: '15px',
+    color: 'accent_yellow'
+  }
+});
+
+export const TableData = chakra(Td, {
+  baseStyle: {
+    maxW: '200px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    '&.isLink': {
+      _hover: { cursor: 'pointer', color: 'accent_red' }
+    }
+  }
+});
+
+export const TableButton = chakra(Button, {
+  baseStyle: {
+    h: '25px',
+    w: '70px',
+    rounded: '5px',
+    bgColor: 'accent_yellow',
+    color: 'accent_blue',
+    _hover: { bgColor: 'accent_red', color: 'white' }
+  }
+});
+
+export const SortMenu = chakra(Button, {
+  baseStyle: {
+    bgColor: 'accent_yellow',
+    color: 'accent_blue',
+    _hover: { bgColor: 'accent_red', color: 'white' },
+    _active: { bgColor: 'accent_red', color: 'white' }
+  }
+});
+
+export const SortList = chakra(MenuList, {
+  baseStyle: {
+    bgColor: 'gray.900',
+    borderColor: 'gray.700'
+  }
+});
+
+export const SortItem = chakra(MenuItem, {
+  baseStyle: {
+    bgColor: 'gray.900',
+    _hover: { bgColor: 'accent_red', color: 'white' },
+    '&.isActive': { color: 'accent_red', _hover: { color: 'white' } }
+  }
+});
+
+export const ModalButton = chakra(Button, {
+  baseStyle: {
+    bgColor: 'accent_yellow',
+    color: 'accent_blue',
+
+    _hover: { bgColor: 'accent_red', color: 'white' },
+    _disabled: {
+      _hover: { bgColor: 'accent_yellow', color: 'accent_blue' }
+    },
+    _loading: { _hover: { bgColor: 'accent_yellow', color: 'accent_blue' } }
   }
 });

@@ -71,11 +71,9 @@ export default function Login() {
       if (rememberMe) {
         // Save token in local storage
         localStorage.setItem('token', token);
-        console.log('token saved in local storage');
       } else {
         // Save token in session storage
         sessionStorage.setItem('token', token);
-        console.log('token saved in session storage');
       }
 
       // Redirect user to dashboard after a delay
@@ -95,6 +93,7 @@ export default function Login() {
 
     // Callbacks to handle error
     onError: (err: any) => {
+      setSigningIn(false);
       try {
         if (err.response.status === 500) {
           setInvalidEmail(true);

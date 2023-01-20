@@ -11,10 +11,12 @@ import {
 } from '@chakra-ui/react';
 import { IconDownload } from '@tabler/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import dynamic from 'next/dynamic';
 import { FormEvent, useState } from 'react';
 import client from '../../lib/axios-service';
 import { Field, InputField, SubmitButton } from '../../styles/components-styles';
-import ServerError from '../server-error';
+
+const ServerError = dynamic(() => import('../server-error').then((mod) => mod.default));
 
 export default function EditProfile() {
   const toast = useToast();
@@ -51,13 +53,13 @@ export default function EditProfile() {
   const { isLoading: updating, mutate: updateProfile } = useMutation<any, Error>({
     mutationFn: async () => {
       return await Promise.all([
-        client.patch('/user/firstName?firstName=' + firstName),
-        client.patch('/user/lastName?lastName=' + lastName),
-        client.patch('/user/username?username=' + username),
-        client.patch('/user/gender?gender=' + gender),
+        client.patch(`/user/firstName?firstName=${firstName}`),
+        client.patch(`/user/lastName?lastName=${lastName}`),
+        client.patch(`/user/username?username=${username}`),
+        client.patch(`/user/gender?gender=${gender}`),
         client.patch('/user/dateOfBirth', { dateOfBirth }),
         client.patch('/user/phoneNumber', { phoneNumber }),
-        client.patch('/user/address?address=' + address)
+        client.patch(`/user/address?address=${address}`)
       ]);
     },
     onSuccess: async () => {
