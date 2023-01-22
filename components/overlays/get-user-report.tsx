@@ -9,21 +9,37 @@ import {
   ModalBody,
   Flex,
   ModalFooter,
-  Text
+  Text,
+  useToast
 } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
+import { useState } from 'react';
 import client from '../../lib/axios-service';
 import Capitalize from '../../lib/capitalize-letter';
-const ServerError = dynamic(() => import('../server-error').then((mod) => mod.default));
+import { HandleError } from '../../lib/system-feedback';
+const ServerError = dynamic(() => import('./server-error').then((mod) => mod.default));
 
 const GetUserReport = ({ id, setModal }: any) => {
-  const { data, isSuccess, isLoading, isError } = useQuery({
-    queryKey: ['user-report'],
-    queryFn: async () => client.get(`/report/user-reports/${id}`).then((res) => res.data.data[0])
-  });
+  const toast = useToast();
+  const [serverError, setServerError] = useState(false);
 
-  console.log(data);
+  const { data, isSuccess, isLoading } = useQuery({
+    queryKey: ['user-report'],
+    queryFn: async () => {
+      return await client
+        .get(`/report/user-reports/${id}`)
+        .then((res) => res.data.data[0])
+        .then((data) => data);
+    },
+    onError: async (error: any) => {
+      try {
+        HandleError({ error, toast });
+      } catch (error) {
+        setServerError(true);
+      }
+    }
+  });
 
   return (
     <>
@@ -107,7 +123,7 @@ const GetUserReport = ({ id, setModal }: any) => {
           <ModalFooter></ModalFooter>
         </ModalContent>
       </Modal>
-      {isError && <ServerError />}
+      {serverError && <ServerError />}
     </>
   );
 };

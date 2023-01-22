@@ -12,6 +12,7 @@ import {
   Th
 } from '@chakra-ui/react';
 import { Rubik } from '@next/font/google';
+import { IconCheck } from '@tabler/icons';
 
 const rubik = Rubik();
 
@@ -143,8 +144,10 @@ export const TableButton = chakra(Button, {
   }
 });
 
-export const SortMenu = chakra(Button, {
+export const AppMenu = chakra(Button, {
   baseStyle: {
+    minW: '100px',
+    maxW: 'max-content',
     bgColor: 'accent_yellow',
     color: 'accent_blue',
     _hover: { bgColor: 'accent_red', color: 'white' },
@@ -152,23 +155,24 @@ export const SortMenu = chakra(Button, {
   }
 });
 
-export const SortList = chakra(MenuList, {
+export const AppMenuList = chakra(MenuList, {
   baseStyle: {
     bgColor: 'gray.900',
     borderColor: 'gray.700'
   }
 });
 
-export const SortItem = chakra(MenuItem, {
+export const AppMenuItem = chakra(MenuItem, {
   baseStyle: {
     bgColor: 'gray.900',
     _hover: { bgColor: 'accent_red', color: 'white' },
-    '&.isActive': { color: 'accent_red', _hover: { color: 'white' } }
+    '&.isActive': { leftIcon: 'IconCheck', color: 'accent_red', _hover: { color: 'white' } }
   }
 });
 
 export const ModalButton = chakra(Button, {
   baseStyle: {
+    w: '50%',
     bgColor: 'accent_yellow',
     color: 'accent_blue',
 

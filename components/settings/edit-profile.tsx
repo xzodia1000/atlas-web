@@ -14,12 +14,14 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { FormEvent, useState } from 'react';
 import client from '../../lib/axios-service';
+import { HandleError, HandleSuccess } from '../../lib/system-feedback';
 import { Field, InputField, SubmitButton } from '../../styles/components-styles';
 
-const ServerError = dynamic(() => import('../server-error').then((mod) => mod.default));
+const ServerError = dynamic(() => import('../overlays/server-error').then((mod) => mod.default));
 
 export default function EditProfile() {
   const toast = useToast();
+  const [serverError, setServerError] = useState(false);
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -29,26 +31,28 @@ export default function EditProfile() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [address, setAddress] = useState('');
 
-  async function getProfile() {
-    const { data } = await client.get('/user/profile');
-
-    // Set initial input field values
-    setFirstName(data.firstName);
-    setLastName(data.lastName);
-    setUsername(data.username);
-    setGender(data.gender);
-    setDateOfBirth(data.dateOfBirth.substring(0, 10));
-    setPhoneNumber(data.phoneNumber);
-    setAddress(data.address);
-
-    console.log(gender);
-    console.log(dateOfBirth);
-
-    return data;
-  }
-  const { isLoading, isError, isSuccess, data } = useQuery(['profile'], getProfile);
-
-  console.log(data);
+  const { isLoading, isSuccess, refetch } = useQuery({
+    queryKey: ['profile'],
+    queryFn: async () => {
+      return await client.get('/user/profile').then((res) => res.data);
+    },
+    onSuccess: async (data) => {
+      setFirstName(data.firstName);
+      setLastName(data.lastName);
+      setUsername(data.username);
+      setGender(data.gender);
+      setDateOfBirth(data.dateOfBirth.substring(0, 10));
+      setPhoneNumber(data.phoneNumber);
+      setAddress(data.address);
+    },
+    onError: async (error: any) => {
+      try {
+        HandleError({ error, toast });
+      } catch (error) {
+        setServerError(true);
+      }
+    }
+  });
 
   const { isLoading: updating, mutate: updateProfile } = useMutation<any, Error>({
     mutationFn: async () => {
@@ -63,24 +67,15 @@ export default function EditProfile() {
       ]);
     },
     onSuccess: async () => {
-      return toast({
-        title: 'Success!',
-        description: "We've updated your profile for you.",
-        status: 'success',
-        duration: 9000,
-        isClosable: true,
-        position: 'bottom-right'
-      });
+      refetch();
+      HandleSuccess({ message: 'Profile updated successfully', toast });
     },
     onError: async (error: any) => {
-      return toast({
-        title: 'Error',
-        description: error.response.data.message,
-        status: 'error',
-        duration: 9000,
-        isClosable: true,
-        position: 'bottom-right'
-      });
+      try {
+        HandleError({ error, toast });
+      } catch (error) {
+        setServerError(true);
+      }
     }
   });
 
@@ -100,7 +95,6 @@ export default function EditProfile() {
           <Spinner size={'xl'} thickness={'5px'} color={'accent_red'} />
         </Center>
       )}
-      {isError && <ServerError />}
       {isSuccess && (
         <form onSubmit={postData}>
           <SimpleGrid>
@@ -196,6 +190,7 @@ export default function EditProfile() {
           </SubmitButton>
         </form>
       )}
+      {serverError && <ServerError />}
     </>
   );
 }

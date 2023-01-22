@@ -2,10 +2,14 @@ import { FormLabel, SimpleGrid, useToast } from '@chakra-ui/react';
 import { useMutation } from '@tanstack/react-query';
 import { FormEvent, useState } from 'react';
 import client from '../../lib/axios-service';
+import { HandleError, HandleSuccess } from '../../lib/system-feedback';
 import { Field, InputField, SubmitButton } from '../../styles/components-styles';
+import ServerError from '../overlays/server-error';
 
 export default function ChangePassword() {
   const toast = useToast();
+  const [serverError, setServerError] = useState(false);
+
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -47,24 +51,14 @@ export default function ChangePassword() {
       });
     },
     onSuccess: async () => {
-      return toast({
-        title: 'Success!',
-        description: 'Password has been updated',
-        status: 'success',
-        duration: 9000,
-        isClosable: true,
-        position: 'bottom-right'
-      });
+      HandleSuccess({ message: 'Password updated successfully.', toast });
     },
     onError: async (error: any) => {
-      return toast({
-        title: 'Error',
-        description: error.response.data.message,
-        status: 'error',
-        duration: 9000,
-        isClosable: true,
-        position: 'bottom-right'
-      });
+      try {
+        HandleError({ error, toast });
+      } catch (error) {
+        setServerError(true);
+      }
     }
   });
 
@@ -116,6 +110,7 @@ export default function ChangePassword() {
           Change Password
         </SubmitButton>
       </form>
+      {serverError && <ServerError />}
     </>
   );
 }

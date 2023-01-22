@@ -3,21 +3,34 @@ import { IconPencil, IconUpload } from '@tabler/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import client from '../../lib/axios-service';
+import { HandleError, HandleSuccess } from '../../lib/system-feedback';
 import { SubmitButton, EditButton } from '../../styles/components-styles';
-import ServerError from '../server-error';
+import ServerError from '../overlays/server-error';
 
 export default function EditProfile() {
   const toast = useToast();
-  const inputFile = useRef<HTMLInputElement | null>(null);
+  const [serverError, setServerError] = useState(false);
 
+  const inputFile = useRef<HTMLInputElement | null>(null);
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  async function getAvatar() {
-    const { data } = await client.get('/user/avatar');
-    setAvatarUrl(data.profilePictureUrl);
-    return data;
-  }
-  const { isLoading, isError, isSuccess } = useQuery(['avatar'], getAvatar);
+
+  const { isLoading, isSuccess } = useQuery({
+    queryKey: ['avatar'],
+    queryFn: async () => {
+      return await client.get('/user/avatar').then((res) => res.data);
+    },
+    onSuccess: async (data) => {
+      setAvatarUrl(data.profilePictureUrl);
+    },
+    onError: async (error: any) => {
+      try {
+        HandleError({ error, toast });
+      } catch (error) {
+        setServerError(true);
+      }
+    }
+  });
 
   const { isLoading: updating, mutate: updateAvatar } = useMutation<any, Error>({
     mutationFn: async () => {
@@ -31,26 +44,16 @@ export default function EditProfile() {
         }
       });
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       setAvatar(null);
-      toast({
-        title: 'Avatar Updated',
-        description: 'Your avatar has been updated.',
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-        position: 'bottom-right'
-      });
+      HandleSuccess({ message: 'Avatar updated', toast });
     },
-    onError: (error: any) => {
-      toast({
-        title: 'Error',
-        description: error.response.data.message,
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-        position: 'bottom-right'
-      });
+    onError: async (error: any) => {
+      try {
+        HandleError({ error, toast });
+      } catch (error) {
+        setServerError(true);
+      }
     }
   });
   return (
@@ -60,7 +63,6 @@ export default function EditProfile() {
           <SkeletonCircle h="300px" w="300px" />
         </Center>
       )}
-      {isError && <ServerError />}
       {isSuccess && (
         <Center>
           <VStack gap={10}>
@@ -101,6 +103,7 @@ export default function EditProfile() {
           </VStack>
         </Center>
       )}
+      {serverError && <ServerError />}
     </>
   );
 }

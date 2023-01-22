@@ -16,18 +16,30 @@ import {
 import { IconBan } from '@tabler/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
+import { useState } from 'react';
 import client from '../../lib/axios-service';
 import Capitalize from '../../lib/capitalize-letter';
+import { HandleError, HandleSuccess } from '../../lib/system-feedback';
 import { ModalButton } from '../../styles/components-styles';
 
-const ServerError = dynamic(() => import('../server-error').then((mod) => mod.default));
+const ServerError = dynamic(() => import('./server-error').then((mod) => mod.default));
 
 const GetUser = ({ id, setModal }: any) => {
   const toast = useToast();
+  const [serverError, setServerError] = useState(false);
 
-  const { data, isLoading, isSuccess, isError, refetch } = useQuery({
+  const { data, isLoading, isSuccess, refetch } = useQuery({
     queryKey: ['user'],
-    queryFn: async () => client.get(`/user/profile/${id}`).then((res) => res.data)
+    queryFn: async () => {
+      return await client.get(`/user/profile/${id}`).then((res) => res.data);
+    },
+    onError: async (error: any) => {
+      try {
+        HandleError({ error, toast });
+      } catch (error) {
+        setServerError(true);
+      }
+    }
   });
 
   const { isLoading: isBanLoading, mutate: banUser } = useMutation({
@@ -36,24 +48,14 @@ const GetUser = ({ id, setModal }: any) => {
     },
     onSuccess: async () => {
       refetch();
-      return toast({
-        title: 'Success!',
-        description: 'User banned successfully.',
-        status: 'success',
-        duration: 9000,
-        isClosable: true,
-        position: 'bottom-right'
-      });
+      HandleSuccess({ message: 'User has been banned', toast });
     },
     onError: async (error: any) => {
-      return toast({
-        title: 'Error',
-        description: error.response.data.message,
-        status: 'error',
-        duration: 9000,
-        isClosable: true,
-        position: 'bottom-right'
-      });
+      try {
+        HandleError({ error, toast });
+      } catch (error) {
+        setServerError(true);
+      }
     }
   });
 
@@ -175,7 +177,7 @@ const GetUser = ({ id, setModal }: any) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-      {isError && <ServerError />}
+      {serverError && <ServerError />}
     </>
   );
 };

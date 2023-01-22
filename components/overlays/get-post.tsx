@@ -16,43 +16,45 @@ import {
 import { IconChevronRight, IconHammer } from '@tabler/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
+import { useState } from 'react';
 import client from '../../lib/axios-service';
 import Capitalize from '../../lib/capitalize-letter';
+import { HandleError, HandleSuccess } from '../../lib/system-feedback';
 import { ModalButton } from '../../styles/components-styles';
 
-const ServerError = dynamic(() => import('../server-error').then((mod) => mod.default));
+const ServerError = dynamic(() => import('./server-error').then((mod) => mod.default));
 
 const GetPost = ({ id, setModal }: any) => {
   const toast = useToast();
+  const [serverError, setServerError] = useState(false);
 
-  const { data, isLoading, isSuccess, isError } = useQuery({
+  const { data, isLoading, isSuccess } = useQuery({
     queryKey: ['post'],
-    queryFn: async () => client.get(`/post/${id}`).then((res) => res.data)
+    queryFn: async () => {
+      return await client.get(`/post/${id}`).then((res) => res.data);
+    },
+    onError: async (error: any) => {
+      try {
+        HandleError({ error, toast });
+      } catch (error) {
+        setServerError(true);
+      }
+    }
   });
 
   const { isLoading: isUnbanLoading, mutate: unbanPost } = useMutation({
     mutationFn: async () => {
-      return await client.post(`/report/unban-post/${id}`);
+      return await client.post(`/report/unban-post/${id}`).then((res) => res.data);
     },
     onSuccess: async () => {
-      return toast({
-        title: 'Success!',
-        description: 'Post unbanned successfully.',
-        status: 'success',
-        duration: 9000,
-        isClosable: true,
-        position: 'bottom-right'
-      });
+      HandleSuccess({ message: 'Post has been unbanned', toast });
     },
     onError: async (error: any) => {
-      return toast({
-        title: 'Error',
-        description: error.response.data.message,
-        status: 'error',
-        duration: 9000,
-        isClosable: true,
-        position: 'bottom-right'
-      });
+      try {
+        HandleError({ error, toast });
+      } catch (error) {
+        setServerError(true);
+      }
     }
   });
 
@@ -171,7 +173,7 @@ const GetPost = ({ id, setModal }: any) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-      {isError && <ServerError />}
+      {serverError && <ServerError />}
     </>
   );
 };

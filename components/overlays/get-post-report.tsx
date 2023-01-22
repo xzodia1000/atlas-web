@@ -9,18 +9,33 @@ import {
   ModalBody,
   Flex,
   ModalFooter,
-  Text
+  Text,
+  useToast
 } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
+import { useState } from 'react';
 import client from '../../lib/axios-service';
 import Capitalize from '../../lib/capitalize-letter';
-const ServerError = dynamic(() => import('../server-error').then((mod) => mod.default));
+import { HandleError } from '../../lib/system-feedback';
+const ServerError = dynamic(() => import('./server-error').then((mod) => mod.default));
 
 const GetPostReport = ({ id, setModal }: any) => {
-  const { data, isLoading, isSuccess, isError } = useQuery({
+  const toast = useToast();
+  const [serverError, setServerError] = useState(false);
+
+  const { data, isLoading, isSuccess } = useQuery({
     queryKey: ['post-report'],
-    queryFn: async () => client.get(`/report/post-reports/${id}`).then((res) => res.data.data[0])
+    queryFn: async () => {
+      return await client.get(`/report/post-reports/${id}`).then((res) => res.data.data[0]);
+    },
+    onError: async (error: any) => {
+      try {
+        HandleError({ error, toast });
+      } catch (error) {
+        setServerError(true);
+      }
+    }
   });
 
   return (
@@ -125,7 +140,7 @@ const GetPostReport = ({ id, setModal }: any) => {
           <ModalFooter></ModalFooter>
         </ModalContent>
       </Modal>
-      {isError && <ServerError />}
+      {serverError && <ServerError />}
     </>
   );
 };

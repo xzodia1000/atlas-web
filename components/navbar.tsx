@@ -4,19 +4,18 @@ import {
   Flex,
   HStack,
   Icon,
-  IconButton,
   Menu,
   MenuButton,
   MenuDivider,
   MenuItem,
   MenuList,
-  useDisclosure,
   VStack,
   Text,
   Image,
   Skeleton,
   SkeletonCircle,
-  Spacer
+  Spacer,
+  useToast
 } from '@chakra-ui/react';
 import {
   IconBellMinus,
@@ -32,10 +31,11 @@ import {
 } from '@tabler/icons';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import client from '../lib/axios-service';
 import SignOut from '../lib/sign-out';
-import ServerError from './server-error';
+import { HandleError } from '../lib/system-feedback';
+import ServerError from './overlays/server-error';
 
 const components = [
   {
@@ -161,16 +161,21 @@ const SiderBar = () => {
 
 const TopBar = () => {
   const router = useRouter();
-  const { onOpen } = useDisclosure();
+  const toast = useToast();
+  const [serverError, setServerError] = useState(false);
 
-  const {
-    isLoading: profileLoading,
-    isError: profileError,
-    isSuccess: profileSuccess,
-    data: profileData
-  } = useQuery({
+  const { isLoading, isError, isSuccess, data } = useQuery({
     queryKey: ['profile'],
-    queryFn: () => client.get('/user/profile').then((res) => res.data)
+    queryFn: async () => {
+      return await client.get('/user/profile').then((res) => res.data);
+    },
+    onError: (error: any) => {
+      try {
+        HandleError({ error, toast });
+      } catch (error) {
+        setServerError(true);
+      }
+    }
   });
 
   const title =
@@ -178,79 +183,72 @@ const TopBar = () => {
     'Dashboard';
 
   return (
-    <Flex
-      pos={'fixed'}
-      h={'80px'}
-      w={'calc(100vw - 240px)'}
-      ml={'240px'}
-      p={'16px'}
-      bgColor={'gray.900'}
-      borderBottom="1px"
-      borderBottomColor={'gray.700'}
-      justifyContent={'flex-end'}>
-      <Text w={'max-content'} fontSize={30} color={'white'}>
-        {title}
-      </Text>
-      <Spacer />
-      <IconButton
-        display={{ base: 'flex', md: 'none' }}
-        onClick={onOpen}
-        variant="outline"
-        aria-label="open menu"
-      />
-
-      <HStack spacing="24px">
-        <Flex alignItems={'center'}>
-          <Menu>
-            <MenuButton py={2} transition="all 0.3s" _focus={{ boxShadow: 'none' }}>
-              <HStack>
-                {(profileLoading || profileError) && <SkeletonCircle size={'32px'} />}
-                {profileSuccess && <Avatar size={'sm'} src={profileData.profilePictureUrl} />}
-                <VStack display="flex" alignItems="flex-start" spacing="1px" ml="2">
-                  {(profileLoading || profileError) && <Skeleton h="15px" w={100} />}
-                  {profileError && <ServerError />}
-                  {profileSuccess && (
-                    <Text fontSize="sm">{profileData.firstName + ' ' + profileData.lastName}</Text>
-                  )}
-                  <Text fontSize="xs" color="gray.600">
-                    Admin
-                  </Text>
-                </VStack>
-                <Box display={{ base: 'none', md: 'flex' }}>
-                  <IconChevronDown />
-                </Box>
-              </HStack>
-            </MenuButton>
-            <MenuList bg={'gray.900'} borderColor={'gray.700'}>
-              <MenuItem
-                onClick={() => router.push('/settings')}
-                bg={'gray.900'}
-                _hover={{
-                  bg: 'accent_red',
-                  color: 'white'
-                }}>
-                <Flex alignItems="center" gap="2">
-                  <IconSettings />
-                  Settings
-                </Flex>
-              </MenuItem>
-              <MenuDivider />
-              <MenuItem
-                onClick={() => SignOut(router)}
-                bg={'gray.900'}
-                _hover={{
-                  bg: 'accent_red',
-                  color: 'white'
-                }}>
-                <Flex alignItems="center" gap="2">
-                  <IconLogout />
-                  Sign out
-                </Flex>
-              </MenuItem>
-            </MenuList>
-          </Menu>
-        </Flex>
-      </HStack>
-    </Flex>
+    <>
+      <Flex
+        pos={'fixed'}
+        h={'80px'}
+        w={'calc(100vw - 240px)'}
+        ml={'240px'}
+        p={'16px'}
+        bgColor={'gray.900'}
+        borderBottom="1px"
+        borderBottomColor={'gray.700'}
+        justifyContent={'flex-end'}>
+        <Text w={'max-content'} fontSize={30} color={'white'}>
+          {title}
+        </Text>
+        <Spacer />
+        <HStack spacing="24px">
+          <Flex alignItems={'center'}>
+            <Menu>
+              <MenuButton py={2} transition="all 0.3s" _focus={{ boxShadow: 'none' }}>
+                <HStack>
+                  {(isLoading || isError) && <SkeletonCircle size={'32px'} />}
+                  {isSuccess && <Avatar size={'sm'} src={data.profilePictureUrl} />}
+                  <VStack display="flex" alignItems="flex-start" spacing="1px" ml="2">
+                    {(isLoading || isError) && <Skeleton h="15px" w={100} />}
+                    {isSuccess && <Text fontSize="sm">{data.firstName + ' ' + data.lastName}</Text>}
+                    <Text fontSize="xs" color="gray.600">
+                      Admin
+                    </Text>
+                  </VStack>
+                  <Box display={{ base: 'none', md: 'flex' }}>
+                    <IconChevronDown />
+                  </Box>
+                </HStack>
+              </MenuButton>
+              <MenuList bg={'gray.900'} borderColor={'gray.700'}>
+                <MenuItem
+                  onClick={() => router.push('/settings')}
+                  bg={'gray.900'}
+                  _hover={{
+                    bg: 'accent_red',
+                    color: 'white'
+                  }}>
+                  <Flex alignItems="center" gap="2">
+                    <IconSettings />
+                    Settings
+                  </Flex>
+                </MenuItem>
+                <MenuDivider />
+                <MenuItem
+                  onClick={() => SignOut(router)}
+                  bg={'gray.900'}
+                  _hover={{
+                    bg: 'accent_red',
+                    color: 'white'
+                  }}>
+                  <Flex alignItems="center" gap="2">
+                    <IconLogout />
+                    Sign out
+                  </Flex>
+                </MenuItem>
+              </MenuList>
+            </Menu>
+          </Flex>
+        </HStack>
+      </Flex>
+      {serverError && <ServerError />}
+    </>
   );
 };

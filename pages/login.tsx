@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { FormEvent, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import client from '../lib/axios-service';
-import { InputField, RememberMe } from '../styles/components-styles';
+import { InputField, ModalButton, RememberMe } from '../styles/components-styles';
 import {
   AlertDialog,
   AlertDialogBody,
@@ -23,6 +23,8 @@ import {
   Image
 } from '@chakra-ui/react';
 import { SubmitButton } from '../styles/components-styles';
+import { IconRefresh } from '@tabler/icons';
+import { HandleSuccess } from '../lib/system-feedback';
 
 export default function Login() {
   // Router instance to redirect user to home page after login
@@ -62,7 +64,7 @@ export default function Login() {
     },
 
     // Callbacks to handle success
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
       setSigningIn(true);
 
       // Get token from response
@@ -81,18 +83,11 @@ export default function Login() {
         router.push('/dashboard');
       }, 2e3);
 
-      toast({
-        title: 'Login successful',
-        description: 'Redirecting to dashboard',
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-        position: 'bottom-right'
-      });
+      HandleSuccess({ message: 'Redirecting to dashboard', toast });
     },
 
     // Callbacks to handle error
-    onError: (err: any) => {
+    onError: async (err: any) => {
       setSigningIn(false);
       try {
         if (err.response.status === 500) {
@@ -215,14 +210,23 @@ export default function Login() {
         isOpen={error}
         onClose={() => setError(false)}
         isCentered>
-        <AlertDialogOverlay />
-        <AlertDialogContent>
+        <AlertDialogOverlay bg="blackAlpha.300" backdropFilter="blur(10px) hue-rotate(90deg)" />
+        <AlertDialogContent bgColor={'gray.800'}>
           <AlertDialogHeader color={'#E53E3E'}>Server Error</AlertDialogHeader>
           <AlertDialogCloseButton />
           <AlertDialogBody>
             There was an error while processing your request. Please try again later.
           </AlertDialogBody>
-          <AlertDialogFooter></AlertDialogFooter>
+          <AlertDialogFooter gap={5}>
+            <ModalButton
+              rightIcon={<IconRefresh />}
+              onClick={(e: any) => {
+                postData(e);
+                setError(false);
+              }}>
+              Retry Login
+            </ModalButton>
+          </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>

@@ -1,53 +1,49 @@
-import {
-  Flex,
-  Menu,
-  MenuButton,
-  MenuDivider,
-  Spacer,
-  TableContainer,
-  Center,
-  Spinner,
-  Table,
-  TableCaption,
-  Thead,
-  Tr,
-  Tbody,
-  Td,
-  useToast
-} from '@chakra-ui/react';
-import {
-  IconChevronDown,
-  IconArrowDown,
-  IconArrowUp,
-  IconChevronLeft,
-  IconChevronRight,
-  IconExternalLink
-} from '@tabler/icons';
+import { Flex, Spacer, useToast } from '@chakra-ui/react';
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import client from '../../lib/axios-service';
 import Capitalize from '../../lib/capitalize-letter';
-import {
-  SortMenu,
-  SortList,
-  SortItem,
-  SmallButton,
-  TableHeader,
-  TableData,
-  TableButton
-} from '../../styles/components-styles';
+import { HandleError, HandleSuccess } from '../../lib/system-feedback';
+import { SmallButton } from '../../styles/components-styles';
+import ContentTable from '../content-table';
+import DropdownMenu from '../dropdown-menu';
 
 const GetUser = dynamic(() => import('../overlays/get-user').then((mod) => mod.default));
 const GetUserReport = dynamic(() =>
   import('../overlays/get-user-report').then((mod) => mod.default)
 );
-const ServerError = dynamic(() => import('../server-error').then((mod) => mod.default));
+const ServerError = dynamic(() => import('../overlays/server-error').then((mod) => mod.default));
 
-const LinkIcon = <IconExternalLink color="#EF694D" />;
+const TableHeaders = [
+  {
+    title: 'Report ID',
+    link: true
+  },
+  {
+    title: 'Reported By',
+    link: true
+  },
+  {
+    title: 'Reported User',
+    link: true
+  },
+  {
+    title: 'Reason'
+  },
+  {
+    title: 'Status'
+  },
+  {
+    title: 'Actions'
+  }
+];
 
 const Moderation = () => {
   const toast = useToast();
+  const [serverError, setServerError] = useState(false);
+
   const [sort, setSort] = useState('DESC');
   const [page, setPage] = useState(1);
   const [nextPage, setNextPage] = useState(true);
@@ -56,76 +52,106 @@ const Moderation = () => {
   const [reportModal, setReportModal] = useState('');
   const [userModal, setUserModal] = useState('');
 
-  const getReportedUsers = async () => {
-    const { data } = await client.get(`/report/reported-users?order=${sort}&page=${page}&take=10`);
-    setPage(data.meta.page);
-    setNextPage(!data.meta.hasNextPage);
-    setPreviousPage(!data.meta.hasPreviousPage);
-    return data;
+  const [TableContent, setTableContent] = useState([]);
+  const TableCaption = {
+    title: 'Page',
+    data: page
   };
 
-  const { isLoading, isError, isSuccess, data, refetch } = useQuery(
-    ['reported-users', page, sort],
-    getReportedUsers
-  );
+  const SortMenuOptions = [
+    {
+      title: 'Newest',
+      value: 'DESC',
+      function: () => {
+        setSort('DESC');
+        setPage(1);
+      }
+    },
+    {
+      title: 'Oldest',
+      value: 'ASC',
+      function: () => {
+        setSort('ASC');
+        setPage(1);
+      }
+    }
+  ];
 
-  const { isLoading: isBanning, mutate: banUser } = useMutation({
-    mutationFn: async ({ userid, reportid }: any) => {
-      await client.post(`/report/ban-user/${userid}/${reportid}}`);
+  const { isLoading, isSuccess, refetch } = useQuery({
+    queryKey: ['reported-users', page, sort],
+    queryFn: async () => {
+      return await client
+        .get(`/report/reported-users?order=${sort}&page=${page}&take=10`)
+        .then((res) => res.data);
     },
-    onSuccess: () => {
-      refetch();
-      return toast({
-        title: 'Success!',
-        description: 'User banned successfully.',
-        status: 'success',
-        duration: 9000,
-        isClosable: true,
-        position: 'bottom-right'
-      });
+    onSuccess: async (data) => {
+      setPage(data.meta.page);
+      setNextPage(!data.meta.hasNextPage);
+      setPreviousPage(!data.meta.hasPreviousPage);
+
+      const tmpTableContent: any = [];
+      for (let i = 0; i < data.data.length; i++) {
+        tmpTableContent[i] = {
+          report: [
+            {
+              data: data.data[i].id,
+              link: true,
+              function: () => setReportModal(data.data[i].reportedUser.id)
+            },
+            {
+              data: data.data[i].reportedBy.username,
+              link: true,
+              function: () => setUserModal(data.data[i].reportedBy.id)
+            },
+            {
+              data: data.data[i].reportedUser.username,
+              link: true,
+              function: () => setUserModal(data.data[i].reportedUser.id)
+            },
+            { data: Capitalize(data.data[i].reason) },
+            { data: Capitalize(data.data[i].status) }
+          ],
+          action: {
+            title: 'Ban',
+            function: () =>
+              banUser({ userid: data.data[i].reportedUser.id, reportid: data.data[i].id })
+          }
+        };
+      }
+
+      setTableContent(tmpTableContent);
     },
-    onError: () => {
-      return toast({
-        title: 'Error!',
-        description: 'Something went wrong.',
-        status: 'error',
-        duration: 9000,
-        isClosable: true,
-        position: 'bottom-right'
-      });
+    onError: async (error: any) => {
+      try {
+        HandleError({ error, toast });
+      } catch (error) {
+        setServerError(true);
+      }
     }
   });
 
-  console.log(data);
+  const { mutate: banUser } = useMutation({
+    mutationFn: async ({ userid, reportid }: any) => {
+      await client.post(`/report/ban-user/${userid}/${reportid}}`);
+    },
+    onSuccess: async () => {
+      refetch();
+      HandleSuccess({ message: 'User has been banned.', toast });
+    },
+    onError: async (error: any) => {
+      try {
+        HandleError({ error, toast });
+      } catch (error) {
+        setServerError(true);
+      }
+    }
+  });
 
   return (
     <>
       <Flex h="100%" direction="column">
         <Flex mb="10px" alignItems="center" gap={3}>
-          <Menu>
-            <MenuButton as={SortMenu} rightIcon={<IconChevronDown />}>
-              Sort
-            </MenuButton>
-            <SortList bgColor="gray.900" borderColor="gray.700">
-              <SortItem
-                className={sort === 'DESC' ? 'isActive' : ''}
-                onClick={() => {
-                  setSort('DESC');
-                  setPage(1);
-                }}>
-                Reported Date <IconArrowDown />
-              </SortItem>
-              <MenuDivider />
-              <SortItem
-                className={sort === 'ASC' ? 'isActive' : ''}
-                onClick={() => {
-                  setSort('ASC');
-                  setPage(1);
-                }}>
-                Reported Date <IconArrowUp />
-              </SortItem>
-            </SortList>
-          </Menu>
+          <DropdownMenu options={SortMenuOptions} title="Sort" currentOption={sort} />
           <Spacer />
           <SmallButton isDisabled={previousPage} onClick={() => setPage(page - 1)}>
             <IconChevronLeft />
@@ -137,79 +163,17 @@ const Moderation = () => {
             icon={<IconChevronRight />}
           />
         </Flex>
-        <TableContainer h="100%" border={'2px solid'} borderColor="gray.700" rounded="10px">
-          {isLoading && (
-            <Center h="100%">
-              <Spinner size={'xl'} thickness={'5px'} color={'accent_red'} />
-            </Center>
-          )}
-          {isError && <ServerError />}
-          {isSuccess && (
-            <Table variant="striped" colorScheme="whiteAlpha">
-              <TableCaption color="accent_yellow" mt="100%" placement="bottom">
-                Page {page}
-              </TableCaption>
-              <Thead>
-                <Tr>
-                  <TableHeader>
-                    <Flex alignItems="center" gap={2}>
-                      Report ID {LinkIcon}
-                    </Flex>
-                  </TableHeader>
-                  <TableHeader>
-                    <Flex alignItems="center" gap={2}>
-                      Reported By {LinkIcon}
-                    </Flex>
-                  </TableHeader>
-                  <TableHeader>
-                    <Flex alignItems="center" gap={2}>
-                      Reported User {LinkIcon}
-                    </Flex>
-                  </TableHeader>
-                  <TableHeader>Reason</TableHeader>
-                  <TableHeader minW="250px">Status</TableHeader>
-                  <TableHeader>Actions</TableHeader>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {isSuccess &&
-                  data.data.map((report: any) => (
-                    <Tr key={report.id}>
-                      <TableData
-                        className="isLink"
-                        onClick={() => setReportModal(report.reportedUser.id)}>
-                        {report.id}
-                      </TableData>
-                      <TableData
-                        className="isLink"
-                        onClick={() => setUserModal(report.reportedBy.id)}>
-                        {report.reportedBy.username}
-                      </TableData>
-                      <TableData
-                        className="isLink"
-                        onClick={() => setUserModal(report.reportedUser.id)}>
-                        {report.reportedUser.username}
-                      </TableData>
-                      <TableData>{Capitalize(report.reason)}</TableData>
-                      <TableData>{Capitalize(report.status)}</TableData>
-                      <Td>
-                        <TableButton
-                          isLoading={isBanning}
-                          onClick={() =>
-                            banUser({ userid: report.reportedUser.id, reportid: report.id })
-                          }>
-                          Ban
-                        </TableButton>
-                      </Td>
-                    </Tr>
-                  ))}
-              </Tbody>
-            </Table>
-          )}
-        </TableContainer>
+        <ContentTable
+          headers={TableHeaders}
+          content={TableContent}
+          caption={TableCaption}
+          loading={isLoading}
+          success={isSuccess}
+        />
       </Flex>
       {reportModal !== '' && <GetUserReport id={reportModal} setModal={setReportModal} />}
       {userModal !== '' && <GetUser id={userModal} setModal={setUserModal} />}
+      {serverError && <ServerError />}
     </>
   );
 };
