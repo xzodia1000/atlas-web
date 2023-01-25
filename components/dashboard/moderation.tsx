@@ -9,6 +9,7 @@ import { HandleError, HandleSuccess } from '../../lib/system-feedback';
 import { SmallButton } from '../../styles/components-styles';
 import ContentTable from '../content-table';
 import DropdownMenu from '../dropdown-menu';
+import TableButtons from '../table-buttons';
 
 const GetUser = dynamic(() => import('../overlays/get-user').then((mod) => mod.default));
 const GetUserReport = dynamic(() =>
@@ -150,17 +151,13 @@ const Moderation = () => {
   return (
     <>
       <Flex h="100%" direction="column">
-        <Flex mb="10px" alignItems="center" gap={3}>
+        <Flex mb="10px" alignItems="center">
           <DropdownMenu options={SortMenuOptions} title="Sort" currentOption={sort} />
           <Spacer />
-          <SmallButton isDisabled={previousPage} onClick={() => setPage(page - 1)}>
-            <IconChevronLeft />
-          </SmallButton>
-          <SmallButton
-            isDisabled={nextPage}
-            aria-label="Next page"
-            onClick={() => setPage(page + 1)}
-            icon={<IconChevronRight />}
+          <TableButtons
+            next={{ value: nextPage, function: () => setPage(page + 1) }}
+            previous={{ value: previousPage, function: () => setPage(page - 1) }}
+            refetch={() => refetch()}
           />
         </Flex>
         <ContentTable

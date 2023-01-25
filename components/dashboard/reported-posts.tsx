@@ -9,6 +9,7 @@ import { HandleError, HandleSuccess } from '../../lib/system-feedback';
 import { SmallButton } from '../../styles/components-styles';
 import ContentTable from '../content-table';
 import DropdownMenu from '../dropdown-menu';
+import TableButtons from '../table-buttons';
 
 const GetPost = dynamic(() => import('../overlays/get-post').then((mod) => mod.default));
 const GetPostReport = dynamic(() =>
@@ -164,14 +165,10 @@ const ReportedPosts = () => {
         <Flex mb="10px" alignItems="center" gap={3}>
           <DropdownMenu options={SortMenuOptions} title="Sort" currentOption={sort} />
           <Spacer />
-          <SmallButton isDisabled={previousPage} onClick={() => setPage(page - 1)}>
-            <IconChevronLeft />
-          </SmallButton>
-          <SmallButton
-            isDisabled={nextPage}
-            aria-label="Next page"
-            onClick={() => setPage(page + 1)}
-            icon={<IconChevronRight />}
+          <TableButtons
+            next={{ value: nextPage, function: () => setPage(page + 1) }}
+            previous={{ value: previousPage, function: () => setPage(page - 1) }}
+            refetch={() => refetch()}
           />
         </Flex>
         <ContentTable
