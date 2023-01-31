@@ -1,21 +1,21 @@
 import { Avatar, Center, SkeletonCircle, useToast, VStack } from '@chakra-ui/react';
-import { IconPencil, IconUpload } from '@tabler/icons';
+import { IconPencil, IconTrash, IconUpload } from '@tabler/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
 import client from '../../lib/axios-service';
 import { HandleError, HandleSuccess } from '../../lib/system-feedback';
 import { SubmitButton, EditButton } from '../../styles/components-styles';
-import ServerError from '../overlays/server-error';
 
 export default function EditProfile() {
   const toast = useToast();
-  const [serverError, setServerError] = useState(false);
+  const router = useRouter();
 
   const inputFile = useRef<HTMLInputElement | null>(null);
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
-  const { isLoading, isSuccess } = useQuery({
+  const { data, isLoading, isSuccess } = useQuery({
     queryKey: ['avatar'],
     queryFn: async () => {
       return await client.get('/user/avatar').then((res) => res.data);
@@ -24,11 +24,7 @@ export default function EditProfile() {
       setAvatarUrl(data.profilePictureUrl);
     },
     onError: async (error: any) => {
-      try {
-        HandleError({ error, toast });
-      } catch (error) {
-        setServerError(true);
-      }
+      HandleError({ error, toast, router });
     }
   });
 
@@ -49,13 +45,23 @@ export default function EditProfile() {
       HandleSuccess({ message: 'Avatar updated', toast });
     },
     onError: async (error: any) => {
-      try {
-        HandleError({ error, toast });
-      } catch (error) {
-        setServerError(true);
-      }
+      HandleError({ error, toast, router });
     }
   });
+
+  const { isLoading: deleting, mutate: deleteAvatar } = useMutation<any, Error>({
+    mutationFn: async () => {
+      return await client.delete('/user/avatar');
+    },
+    onSuccess: async () => {
+      setAvatarUrl(null);
+      HandleSuccess({ message: 'Avatar deleted', toast });
+    },
+    onError: async (error: any) => {
+      HandleError({ error, toast, router });
+    }
+  });
+
   return (
     <>
       {isLoading && (
@@ -100,10 +106,19 @@ export default function EditProfile() {
               onClick={updateAvatar}>
               Change Avatar
             </SubmitButton>
+            <SubmitButton
+              isDisabled={data?.profilePictureUrl === ''}
+              bgColor="error_red"
+              _disabled={{ _hover: { bgColor: 'error_red' } }}
+              _hover={{ bgColor: 'red' }}
+              isLoading={deleting}
+              leftIcon={<IconTrash />}
+              onClick={deleteAvatar}>
+              Delete Avatar
+            </SubmitButton>
           </VStack>
         </Center>
       )}
-      {serverError && <ServerError />}
     </>
   );
 }

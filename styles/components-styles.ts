@@ -12,7 +12,6 @@ import {
   Th
 } from '@chakra-ui/react';
 import { Rubik } from '@next/font/google';
-import { IconCheck } from '@tabler/icons';
 
 const rubik = Rubik();
 
@@ -26,7 +25,7 @@ export const GoHomeButton = chakra(Button, {
     rounded: '10px',
     fontFamily: rubik.style.fontFamily,
     fontWeight: '450',
-    _hover: { bgColor: 'accent_red', color: 'white' }
+    _hover: { bgColor: 'accent_yellow_dark' }
   }
 });
 
@@ -71,7 +70,8 @@ export const SubmitButton = chakra(Button, {
   baseStyle: {
     size: 'lg',
     h: '50px',
-    w: '200px',
+    maxW: 'max-content',
+    minW: '200px',
     mt: '50px',
     borderRadius: '8px',
     color: 'accent_blue',
@@ -80,7 +80,7 @@ export const SubmitButton = chakra(Button, {
     fontSize: '20px',
     fontWeight: '450',
 
-    _hover: { bgColor: 'accent_red', color: 'white' },
+    _hover: { bgColor: 'accent_yellow_dark' },
     _loading: { _hover: { bgColor: 'accent_yellow', color: 'accent_blue' } }
   }
 });
@@ -99,17 +99,11 @@ export const EditButton = chakra(Button, {
   }
 });
 
-export const RememberMe = chakra(Checkbox, {
-  baseStyle: {
-    borderColor: 'accent_yellow'
-  }
-});
-
 export const SmallButton = chakra(IconButton, {
   baseStyle: {
     color: 'accent_blue',
     bgColor: 'accent_yellow',
-    _hover: { bgColor: 'accent_red', color: 'white' },
+    _hover: { bgColor: 'accent_yellow_dark' },
     _disabled: { _hover: { bgColor: 'accent_yellow', color: 'accent_blue' } }
   }
 });
@@ -140,7 +134,7 @@ export const TableButton = chakra(Button, {
     rounded: '5px',
     bgColor: 'accent_yellow',
     color: 'accent_blue',
-    _hover: { bgColor: 'accent_red', color: 'white' }
+    _hover: { bgColor: 'accent_yellow_dark' }
   }
 });
 
@@ -150,7 +144,7 @@ export const AppMenu = chakra(Button, {
     maxW: 'max-content',
     bgColor: 'accent_yellow',
     color: 'accent_blue',
-    _hover: { bgColor: 'accent_red', color: 'white' },
+    _hover: { bgColor: 'accent_yellow_dark' },
     _active: { bgColor: 'accent_red', color: 'white' }
   }
 });
@@ -176,7 +170,7 @@ export const ModalButton = chakra(Button, {
     bgColor: 'accent_yellow',
     color: 'accent_blue',
 
-    _hover: { bgColor: 'accent_red', color: 'white' },
+    _hover: { bgColor: 'accent_yellow_dark' },
     _disabled: {
       _hover: { bgColor: 'accent_yellow', color: 'accent_blue' }
     },

@@ -11,20 +11,19 @@ import {
 } from '@chakra-ui/react';
 import { IconDownload } from '@tabler/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import { FormEvent, useState } from 'react';
 import client from '../../lib/axios-service';
 import { HandleError, HandleSuccess } from '../../lib/system-feedback';
 import { Field, InputField, SubmitButton } from '../../styles/components-styles';
 
-const ServerError = dynamic(() => import('../overlays/server-error').then((mod) => mod.default));
-
 export default function EditProfile() {
   const toast = useToast();
-  const [serverError, setServerError] = useState(false);
+  const router = useRouter();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [gender, setGender] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
@@ -39,6 +38,7 @@ export default function EditProfile() {
     onSuccess: async (data) => {
       setFirstName(data.firstName);
       setLastName(data.lastName);
+      setEmail(data.email);
       setUsername(data.username);
       setGender(data.gender);
       setDateOfBirth(data.dateOfBirth.substring(0, 10));
@@ -46,11 +46,7 @@ export default function EditProfile() {
       setAddress(data.address);
     },
     onError: async (error: any) => {
-      try {
-        HandleError({ error, toast });
-      } catch (error) {
-        setServerError(true);
-      }
+      HandleError({ error, toast, router });
     }
   });
 
@@ -59,6 +55,7 @@ export default function EditProfile() {
       return await Promise.all([
         client.patch(`/user/firstName?firstName=${firstName}`),
         client.patch(`/user/lastName?lastName=${lastName}`),
+        client.patch('/user/email', { email }),
         client.patch(`/user/username?username=${username}`),
         client.patch(`/user/gender?gender=${gender}`),
         client.patch('/user/dateOfBirth', { dateOfBirth }),
@@ -71,11 +68,7 @@ export default function EditProfile() {
       HandleSuccess({ message: 'Profile updated successfully', toast });
     },
     onError: async (error: any) => {
-      try {
-        HandleError({ error, toast });
-      } catch (error) {
-        setServerError(true);
-      }
+      HandleError({ error, toast, router });
     }
   });
 
@@ -113,6 +106,15 @@ export default function EditProfile() {
                 value={lastName}
                 onChange={(e: any) => setLastName(e.target.value)}
                 type={'text'}
+                required
+              />
+            </Field>
+            <Field>
+              <FormLabel w={150}>Email</FormLabel>
+              <InputField
+                value={email}
+                onChange={(e: any) => setEmail(e.target.value)}
+                type={'email'}
                 required
               />
             </Field>
@@ -190,7 +192,6 @@ export default function EditProfile() {
           </SubmitButton>
         </form>
       )}
-      {serverError && <ServerError />}
     </>
   );
 }

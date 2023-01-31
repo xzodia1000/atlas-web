@@ -31,11 +31,10 @@ import {
 } from '@tabler/icons';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
 import client from '../lib/axios-service';
 import SignOut from '../lib/sign-out';
 import { HandleError } from '../lib/system-feedback';
-import ServerError from './overlays/server-error';
 
 const components = [
   {
@@ -162,7 +161,6 @@ const SiderBar = () => {
 const TopBar = () => {
   const router = useRouter();
   const toast = useToast();
-  const [serverError, setServerError] = useState(false);
 
   const { isLoading, isError, isSuccess, data } = useQuery({
     queryKey: ['profile'],
@@ -170,11 +168,7 @@ const TopBar = () => {
       return await client.get('/user/profile').then((res) => res.data);
     },
     onError: (error: any) => {
-      try {
-        HandleError({ error, toast });
-      } catch (error) {
-        setServerError(true);
-      }
+      HandleError({ error, toast, router });
     }
   });
 
@@ -248,7 +242,6 @@ const TopBar = () => {
           </Flex>
         </HStack>
       </Flex>
-      {serverError && <ServerError />}
     </>
   );
 };

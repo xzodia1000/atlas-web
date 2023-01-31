@@ -1,5 +1,4 @@
 import {
-  Text,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -13,49 +12,52 @@ import {
   Spinner,
   useToast
 } from '@chakra-ui/react';
-import { IconBan } from '@tabler/icons';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import dynamic from 'next/dynamic';
+import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
+import IDetails from '../../interfaces/IDetails';
 import client from '../../lib/axios-service';
 import Capitalize from '../../lib/capitalize-letter';
-import { HandleError, HandleSuccess } from '../../lib/system-feedback';
-import { ModalButton } from '../../styles/components-styles';
+import { HandleError } from '../../lib/system-feedback';
+import DetailDisplay from '../detail-display';
 
-const ServerError = dynamic(() => import('./server-error').then((mod) => mod.default));
+const listType: { data: IDetails[] | null } = { data: null };
 
 const GetUser = ({ id, setModal }: any) => {
   const toast = useToast();
-  const [serverError, setServerError] = useState(false);
+  const router = useRouter();
+  const [user, setUser] = useState(listType);
 
-  const { data, isLoading, isSuccess, refetch } = useQuery({
+  const { data, isLoading, isSuccess } = useQuery({
     queryKey: ['user'],
     queryFn: async () => {
       return await client.get(`/user/profile/${id}`).then((res) => res.data);
     },
-    onError: async (error: any) => {
-      try {
-        HandleError({ error, toast });
-      } catch (error) {
-        setServerError(true);
-      }
-    }
-  });
+    onSuccess(data: any) {
+      const tmpUser = {
+        data: [
+          { title: 'User ID', des: data.id },
+          { title: 'Role', des: Capitalize(data.role) },
+          { title: ['First name', 'Last name'], des: [data.firstName, data.lastName] },
+          { title: 'Email', des: data.email },
+          {
+            title: 'Gender',
+            des: data.gender === 'undefined' ? 'Prefer not to say' : Capitalize(data.gender)
+          },
+          { title: 'Date of Birth', des: data.dateOfBirth.substring(0, 10) },
+          { title: 'Phone Number', des: data.phoneNumber },
+          { title: 'Address', des: data.address },
+          {
+            title: ['Account Created', 'Last updated'],
+            des: [data.createdAt.substring(0, 10), data.updatedAt.substring(0, 10)]
+          }
+        ]
+      };
 
-  const { isLoading: isBanLoading, mutate: banUser } = useMutation({
-    mutationFn: async () => {
-      return await client.post(`/report/ban-user/${id}`);
-    },
-    onSuccess: async () => {
-      refetch();
-      HandleSuccess({ message: 'User has been banned', toast });
+      setUser(tmpUser);
     },
     onError: async (error: any) => {
-      try {
-        HandleError({ error, toast });
-      } catch (error) {
-        setServerError(true);
-      }
+      HandleError({ error, toast, router });
     }
   });
 
@@ -92,92 +94,15 @@ const GetUser = ({ id, setModal }: any) => {
                 <Center>
                   <Avatar size={'xl'} src={data.profilePictureUrl} />
                 </Center>
-                <Flex direction="column">
-                  <Text fontSize="xs" color="accent_yellow">
-                    User ID
-                  </Text>
-                  <Text fontSize="lg">{id}</Text>
-                </Flex>
-                <Flex direction="column">
-                  <Text fontSize="xs" color="accent_yellow">
-                    Role
-                  </Text>
-                  <Text fontSize="lg">{Capitalize(data.role)}</Text>
-                </Flex>
-                <Flex gap={5}>
-                  <Flex direction="column">
-                    <Text fontSize="xs" color="accent_yellow">
-                      First Name
-                    </Text>
-                    <Text fontSize="lg">{data.firstName}</Text>
-                  </Flex>
-                  <Flex direction="column">
-                    <Text fontSize="xs" color="accent_yellow">
-                      Last Name
-                    </Text>
-                    <Text fontSize="lg">{data.lastName}</Text>
-                  </Flex>
-                </Flex>
-                <Flex direction="column">
-                  <Text fontSize="xs" color="accent_yellow">
-                    Email
-                  </Text>
-                  <Text fontSize="lg">{data.email}</Text>
-                </Flex>
-                <Flex direction="column">
-                  <Text fontSize="xs" color="accent_yellow">
-                    Gender
-                  </Text>
-                  <Text fontSize="lg">
-                    {data.gender === 'undefined' ? 'Prefer not to say' : Capitalize(data.gender)}
-                  </Text>
-                </Flex>
-                <Flex direction="column">
-                  <Text fontSize="xs" color="accent_yellow">
-                    Date of Birth
-                  </Text>
-                  <Text fontSize="lg">{data.dateOfBirth.substring(0, 10)}</Text>
-                </Flex>
-                <Flex direction="column">
-                  <Text fontSize="xs" color="accent_yellow">
-                    Phone Number
-                  </Text>
-                  <Text fontSize="lg">{data.phoneNumber}</Text>
-                </Flex>
-                <Flex direction="column">
-                  <Text fontSize="xs" color="accent_yellow">
-                    Address
-                  </Text>
-                  <Text fontSize="lg">{data.address}</Text>
-                </Flex>
-                <Flex gap={5}>
-                  <Flex direction="column">
-                    <Text fontSize="xs" color="accent_yellow">
-                      Account Created
-                    </Text>
-                    <Text fontSize="lg">{data.createdAt.substring(0, 10)}</Text>
-                  </Flex>
-                  <Flex direction="column">
-                    <Text fontSize="xs" color="accent_yellow">
-                      Last Updated
-                    </Text>
-                    <Text fontSize="lg">{data.updatedAt.substring(0, 10)}</Text>
-                  </Flex>
-                </Flex>
+                {user.data?.map((item: IDetails, index: number) => (
+                  <DetailDisplay key={index} title={item.title} des={item.des} />
+                ))}
               </Flex>
             </ModalBody>
           )}
-          <ModalFooter>
-            <ModalButton
-              isDisabled={isLoading || isBanLoading}
-              leftIcon={<IconBan />}
-              onClick={banUser}>
-              Ban User
-            </ModalButton>
-          </ModalFooter>
+          <ModalFooter></ModalFooter>
         </ModalContent>
       </Modal>
-      {serverError && <ServerError />}
     </>
   );
 };

@@ -1,12 +1,11 @@
-import { Flex, Spacer, useToast } from '@chakra-ui/react';
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons';
+import { Flex, Spacer, useToast, Text } from '@chakra-ui/react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import client from '../../lib/axios-service';
 import Capitalize from '../../lib/capitalize-letter';
 import { HandleError, HandleSuccess } from '../../lib/system-feedback';
-import { SmallButton } from '../../styles/components-styles';
 import ContentTable from '../content-table';
 import DropdownMenu from '../dropdown-menu';
 import TableButtons from '../table-buttons';
@@ -16,39 +15,20 @@ const GetPostReport = dynamic(() =>
   import('../overlays/get-post-report').then((mod) => mod.default)
 );
 const GetUser = dynamic(() => import('../overlays/get-user').then((mod) => mod.default));
-const ServerError = dynamic(() => import('../overlays/server-error').then((mod) => mod.default));
 
 const TableHeaders = [
-  {
-    title: 'Reported ID',
-    link: true
-  },
-  {
-    title: 'Reported By',
-    link: true
-  },
-  {
-    title: 'Post ID',
-    link: true
-  },
-  {
-    title: 'Post by',
-    link: true
-  },
-  {
-    title: 'Reason'
-  },
-  {
-    title: 'Status'
-  },
-  {
-    title: 'Actions'
-  }
+  { title: 'Reported ID', link: true },
+  { title: 'Reported By', link: true },
+  { title: 'Post ID', link: true },
+  { title: 'Post by', link: true },
+  { title: 'Reason' },
+  { title: 'Status' },
+  { title: 'Actions' }
 ];
 
 const ReportedPosts = () => {
   const toast = useToast();
-  const [serverError, setServerError] = useState(false);
+  const router = useRouter();
 
   const [sort, setSort] = useState('DESC');
   const [page, setPage] = useState(1);
@@ -60,10 +40,6 @@ const ReportedPosts = () => {
   const [userModal, setUserModal] = useState('');
 
   const [TableContent, setTableContent] = useState([]);
-  const TableCaption = {
-    title: 'Page',
-    data: page
-  };
 
   const SortMenuOptions = [
     {
@@ -84,16 +60,18 @@ const ReportedPosts = () => {
     }
   ];
 
-  const { isLoading, isSuccess, refetch } = useQuery({
+  const { isLoading, isSuccess, refetch, isRefetching } = useQuery({
     queryKey: ['reported-posts', page, sort],
     queryFn: async () => {
       return await client
-        .get(`/report/reported-posts?order=${sort}&page=${page}&take=10`)
+        .get(`/report/reported-posts?order=${sort}&page=${page}&take=13`)
         .then((res) => res.data);
     },
     onSuccess: async (data: any) => {
       setPage(data.meta.page);
-      setNextPage(!data.meta.hasNextPage);
+      if (data.meta.itemCount === 10) {
+        setNextPage(false);
+      }
       setPreviousPage(!data.meta.hasPreviousPage);
 
       const tmpTableContent: any = [];
@@ -123,22 +101,21 @@ const ReportedPosts = () => {
             { data: Capitalize(data.data[i].reason) },
             { data: Capitalize(data.data[i].status) }
           ],
-          action: {
-            title: 'Ban',
-            function: () =>
-              banPost({ postid: data.data[i].reportedPost.id, reportid: data.data[i].id })
-          }
+          actions: [
+            {
+              title: 'Ban',
+              function: () =>
+                banPost({ postid: data.data[i].reportedPost.id, reportid: data.data[i].id }),
+              isDisabled: data.data[i].status !== 'pending review'
+            }
+          ]
         };
       }
 
       setTableContent(tmpTableContent);
     },
     onError: async (error: any) => {
-      try {
-        HandleError({ error, toast });
-      } catch (error) {
-        setServerError(true);
-      }
+      HandleError({ error, toast, router });
     }
   });
 
@@ -151,11 +128,7 @@ const ReportedPosts = () => {
       HandleSuccess({ message: 'Post has been taken down.', toast });
     },
     onError: async (error: any) => {
-      try {
-        HandleError({ error, toast });
-      } catch (error) {
-        setServerError(true);
-      }
+      HandleError({ error, toast, router });
     }
   });
 
@@ -174,15 +147,16 @@ const ReportedPosts = () => {
         <ContentTable
           headers={TableHeaders}
           content={TableContent}
-          caption={TableCaption}
           success={isSuccess}
-          loading={isLoading}
+          loading={isLoading || isRefetching}
         />
+        <Text color="accent_red" mt="10px" textAlign="center">
+          Page {page}
+        </Text>
       </Flex>
       {reportModal !== '' && <GetPostReport id={reportModal} setModal={setReportModal} />}
       {userModal !== '' && <GetUser id={userModal} setModal={setUserModal} />}
       {postModal !== '' && <GetPost id={postModal} setModal={setPostModal} />}
-      {serverError && <ServerError />}
     </>
   );
 };

@@ -9,32 +9,59 @@ import {
   ModalBody,
   Flex,
   ModalFooter,
-  Text,
   useToast
 } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
-import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
+import IDetails from '../../interfaces/IDetails';
 import client from '../../lib/axios-service';
 import Capitalize from '../../lib/capitalize-letter';
 import { HandleError } from '../../lib/system-feedback';
-const ServerError = dynamic(() => import('./server-error').then((mod) => mod.default));
+import DetailDisplay from '../detail-display';
+
+const listType: { data: IDetails[] | null } = { data: null };
 
 const GetPostReport = ({ id, setModal }: any) => {
   const toast = useToast();
-  const [serverError, setServerError] = useState(false);
+  const router = useRouter();
+  const [report, setReport] = useState(listType);
 
-  const { data, isLoading, isSuccess } = useQuery({
+  const { isLoading, isSuccess } = useQuery({
     queryKey: ['post-report'],
     queryFn: async () => {
       return await client.get(`/report/post-reports/${id}`).then((res) => res.data.data[0]);
     },
+    onSuccess(data: any) {
+      const tmpReport = {
+        data: [
+          { title: 'Report ID', des: data.id },
+          { title: 'Report by', des: `${data.reportedBy.username} (${data.reportedBy.id})` },
+          { title: 'Reason', des: Capitalize(data.reason) },
+          { title: 'Status', des: Capitalize(data.status) },
+          {
+            title: ['Reported at', 'Last updated'],
+            des: [data.createdAt.substring(0, 10), data.updatedAt.substring(0, 10)]
+          },
+          { title: 'Reported Post ID', des: data.reportedPost.id },
+          {
+            title: 'Posted by',
+            des: `${data.reportedPost.postedBy.username} (${data.reportedPost.postedBy.id})`
+          },
+          {
+            title: ['Post Created', 'Last updated'],
+            des: [
+              data.reportedPost.createdAt.substring(0, 10),
+              data.reportedPost.updatedAt.substring(0, 10)
+            ]
+          }
+        ]
+      };
+
+      setReport(tmpReport);
+    },
     onError: async (error: any) => {
-      try {
-        HandleError({ error, toast });
-      } catch (error) {
-        setServerError(true);
-      }
+      HandleError({ error, toast, router });
     }
   });
 
@@ -66,81 +93,15 @@ const GetPostReport = ({ id, setModal }: any) => {
           {isSuccess && (
             <ModalBody>
               <Flex direction="column" gap={5}>
-                <Flex direction="column">
-                  <Text fontSize="xs" color="accent_yellow">
-                    Report ID
-                  </Text>
-                  <Text fontSize="lg">{data.id}</Text>
-                </Flex>
-                <Flex direction="column">
-                  <Text fontSize="xs" color="accent_yellow">
-                    Report by
-                  </Text>
-                  <Text fontSize="lg">
-                    {data.reportedBy.username} ({data.reportedBy.id})
-                  </Text>
-                </Flex>
-                <Flex direction="column">
-                  <Text fontSize="xs" color="accent_yellow">
-                    Reason
-                  </Text>
-                  <Text fontSize="lg">{Capitalize(data.reason)}</Text>
-                </Flex>
-                <Flex direction="column">
-                  <Text fontSize="xs" color="accent_yellow">
-                    Status
-                  </Text>
-                  <Text fontSize="lg">{Capitalize(data.status)}</Text>
-                </Flex>
-                <Flex gap={5}>
-                  <Flex direction="column">
-                    <Text fontSize="xs" color="accent_yellow">
-                      Reported at
-                    </Text>
-                    <Text fontSize="lg">{data.createdAt.substring(0, 10)}</Text>
-                  </Flex>
-                  <Flex direction="column">
-                    <Text fontSize="xs" color="accent_yellow">
-                      Last Updated
-                    </Text>
-                    <Text fontSize="lg">{data.updatedAt.substring(0, 10)}</Text>
-                  </Flex>
-                </Flex>
-                <Flex direction="column">
-                  <Text fontSize="xs" color="accent_yellow">
-                    Reported Post ID
-                  </Text>
-                  <Text fontSize="lg">{data.reportedPost.id}</Text>
-                </Flex>
-                <Flex direction="column">
-                  <Text fontSize="xs" color="accent_yellow">
-                    Posted by
-                  </Text>
-                  <Text fontSize="lg">
-                    {data.reportedPost.postedBy.username} ({data.reportedPost.postedBy.id})
-                  </Text>
-                </Flex>
-                <Flex gap={5}>
-                  <Flex direction="column">
-                    <Text fontSize="xs" color="accent_yellow">
-                      Post Created
-                    </Text>
-                    <Text fontSize="lg">{data.reportedPost.createdAt.substring(0, 10)}</Text>
-                  </Flex>
-                  <Flex direction="column">
-                    <Text fontSize="xs" color="accent_yellow">
-                      Last Updated
-                    </Text>
-                    <Text fontSize="lg">{data.reportedPost.updatedAt.substring(0, 10)}</Text>
-                  </Flex>
-                </Flex>
+                {report.data?.map((item: IDetails, index: number) => (
+                  <DetailDisplay key={index} title={item.title} des={item.des} />
+                ))}
               </Flex>
             </ModalBody>
           )}
           <ModalFooter></ModalFooter>
         </ModalContent>
       </Modal>
-      {serverError && <ServerError />}
     </>
   );
 };

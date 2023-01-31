@@ -26,6 +26,9 @@ const PostAnalyticsComponent = dynamic(() =>
 const EventAnalyticsComponent = dynamic(() =>
   import('../components/dashboard/event-analytics').then((mod) => mod.default)
 );
+const ServerError = dynamic(() =>
+  import('../components/overlays/server-error').then((mod) => mod.default)
+);
 const NavbarComponent = dynamic(() => import('../components/navbar').then((mod) => mod.default));
 
 // Components
@@ -64,6 +67,11 @@ const components = [
     name: 'event-analytics',
     title: 'Event Analytics',
     component: <EventAnalyticsComponent />
+  },
+  {
+    name: 'server-error',
+    title: 'Server Error',
+    component: <ServerError />
   }
 ];
 const regex = /#([^?]*)/;

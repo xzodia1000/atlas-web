@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { FormEvent, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import client from '../lib/axios-service';
-import { InputField, ModalButton, RememberMe } from '../styles/components-styles';
+import { InputField, ModalButton } from '../styles/components-styles';
 import {
   AlertDialog,
   AlertDialogBody,
@@ -39,7 +39,6 @@ export default function Login() {
   // State variables to store email, password and remember me checkbox
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
 
   // Error variables
   const [error, setError] = useState(false);
@@ -70,13 +69,8 @@ export default function Login() {
       // Get token from response
       const token = response.data.access_token;
 
-      if (rememberMe) {
-        // Save token in local storage
-        localStorage.setItem('token', token);
-      } else {
-        // Save token in session storage
-        sessionStorage.setItem('token', token);
-      }
+      // Save token in local storage
+      localStorage.setItem('token', token);
 
       // Redirect user to dashboard after a delay
       setTimeout(() => {
@@ -90,7 +84,7 @@ export default function Login() {
     onError: async (err: any) => {
       setSigningIn(false);
       try {
-        if (err.response.status === 500) {
+        if (err.response.status === 400) {
           setInvalidEmail(true);
         } else if (err.response.status === 401) {
           setInvalidPassword(true);
@@ -190,13 +184,8 @@ export default function Login() {
               />
               <FormErrorMessage>Invalid Password</FormErrorMessage>
             </FormControl>
-
-            <RememberMe mb={10} onChange={(e: any) => setRememberMe(e.target.checked)}>
-              Remember me
-            </RememberMe>
-
             <Center>
-              <SubmitButton mt="0" isLoading={validating || signingIn} type="submit">
+              <SubmitButton isLoading={validating || signingIn} type="submit">
                 Login
               </SubmitButton>
             </Center>

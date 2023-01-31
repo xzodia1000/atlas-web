@@ -7,6 +7,7 @@ import { NextPage } from 'next';
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import SignOut from '../lib/sign-out';
+import AddAdmin from '../components/settings/add-admin';
 
 // Dynamic imports
 const EditProfile = dynamic(() =>
@@ -42,7 +43,7 @@ const components = [
   {
     name: 'add-new-admin',
     title: 'Add New Admin',
-    component: <div>add new admin</div>
+    component: <AddAdmin />
   },
   {
     name: 'security-settings',

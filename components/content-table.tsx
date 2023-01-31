@@ -3,7 +3,6 @@ import {
   Flex,
   Spinner,
   Table,
-  TableCaption,
   TableContainer,
   Tbody,
   Td,
@@ -13,19 +12,20 @@ import {
 import { IconExternalLink } from '@tabler/icons';
 import { TableButton, TableData, TableHeader } from '../styles/components-styles';
 
-const ContentTable = ({ headers, content, caption, success, loading }: any) => {
-  let i = 0;
+const ContentTable = ({ headers, content, success, loading }: any) => {
   return (
-    <TableContainer h="100%" border={'2px solid'} borderColor="gray.700" rounded="10px">
+    <TableContainer
+      h="100%"
+      border={'2px solid'}
+      borderColor="gray.700"
+      rounded="10px"
+      overflowY="scroll">
       {loading && (
         <Center h="100%">
           <Spinner size={'xl'} thickness={'5px'} color={'accent_red'} />
         </Center>
       )}
       <Table variant="striped" colorScheme="whiteAlpha">
-        <TableCaption color="accent_yellow" placement="bottom">
-          {caption.title} {caption.data}
-        </TableCaption>
         <Thead>
           <Tr>
             {headers.map((header: any) => (
@@ -40,18 +40,27 @@ const ContentTable = ({ headers, content, caption, success, loading }: any) => {
         </Thead>
         {success && (
           <Tbody>
-            {content.map((report: any) => (
-              <Tr key={'report' + i++}>
-                {report.report.map((field: any) => (
+            {content.map((report: any, index: number) => (
+              <Tr key={'report' + index}>
+                {report.report.map((field: any, index: number) => (
                   <TableData
-                    key={field.data}
+                    key={index}
                     className={field.link === true ? 'isLink' : ''}
                     onClick={field.link === true ? field.function : null}>
                     {field.data}
                   </TableData>
                 ))}
                 <Td>
-                  <TableButton onClick={report.action.function}>{report.action.title}</TableButton>
+                  <Flex gap={5}>
+                    {report.actions.map((action: any, index: number) => (
+                      <TableButton
+                        key={index}
+                        onClick={action.function}
+                        isDisabled={action.isDisabled}>
+                        {action.title}
+                      </TableButton>
+                    ))}
+                  </Flex>
                 </Td>
               </Tr>
             ))}

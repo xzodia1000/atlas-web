@@ -1,14 +1,15 @@
 import { FormLabel, SimpleGrid, useToast } from '@chakra-ui/react';
+import { IconDownload } from '@tabler/icons';
 import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { FormEvent, useState } from 'react';
 import client from '../../lib/axios-service';
 import { HandleError, HandleSuccess } from '../../lib/system-feedback';
 import { Field, InputField, SubmitButton } from '../../styles/components-styles';
-import ServerError from '../overlays/server-error';
 
 export default function ChangePassword() {
   const toast = useToast();
-  const [serverError, setServerError] = useState(false);
+  const router = useRouter();
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -16,11 +17,11 @@ export default function ChangePassword() {
 
   const { isLoading: updating, mutate: updatePassword } = useMutation<any, Error>({
     mutationFn: async () => {
-      if (newPassword.length < 8) {
+      if (currentPassword === newPassword) {
         throw {
           response: {
             data: {
-              message: 'Password must be at least 8 characters.'
+              message: 'New password cannot be the same as old password.'
             }
           }
         };
@@ -34,11 +35,11 @@ export default function ChangePassword() {
           }
         };
       }
-      if (currentPassword === newPassword) {
+      if (newPassword.length < 8) {
         throw {
           response: {
             data: {
-              message: 'New password cannot be the same as old password.'
+              message: 'Password must be at least 8 characters.'
             }
           }
         };
@@ -54,11 +55,7 @@ export default function ChangePassword() {
       HandleSuccess({ message: 'Password updated successfully.', toast });
     },
     onError: async (error: any) => {
-      try {
-        HandleError({ error, toast });
-      } catch (error) {
-        setServerError(true);
-      }
+      HandleError({ error, toast, router });
     }
   });
 
@@ -106,11 +103,10 @@ export default function ChangePassword() {
             />
           </Field>
         </SimpleGrid>
-        <SubmitButton isLoading={updating} type="submit">
+        <SubmitButton leftIcon={<IconDownload fontSize="25" />} isLoading={updating} type="submit">
           Change Password
         </SubmitButton>
       </form>
-      {serverError && <ServerError />}
     </>
   );
 }

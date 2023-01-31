@@ -1,12 +1,11 @@
-import { Flex, Spacer, useToast } from '@chakra-ui/react';
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons';
+import { Flex, Spacer, useToast, Text } from '@chakra-ui/react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import client from '../../lib/axios-service';
 import Capitalize from '../../lib/capitalize-letter';
 import { HandleError, HandleSuccess } from '../../lib/system-feedback';
-import { SmallButton } from '../../styles/components-styles';
 import ContentTable from '../content-table';
 import DropdownMenu from '../dropdown-menu';
 import TableButtons from '../table-buttons';
@@ -15,7 +14,6 @@ const GetUser = dynamic(() => import('../overlays/get-user').then((mod) => mod.d
 const GetUserReport = dynamic(() =>
   import('../overlays/get-user-report').then((mod) => mod.default)
 );
-const ServerError = dynamic(() => import('../overlays/server-error').then((mod) => mod.default));
 
 const TableHeaders = [
   {
@@ -43,7 +41,7 @@ const TableHeaders = [
 
 const Moderation = () => {
   const toast = useToast();
-  const [serverError, setServerError] = useState(false);
+  const router = useRouter();
 
   const [sort, setSort] = useState('DESC');
   const [page, setPage] = useState(1);
@@ -54,11 +52,6 @@ const Moderation = () => {
   const [userModal, setUserModal] = useState('');
 
   const [TableContent, setTableContent] = useState([]);
-  const TableCaption = {
-    title: 'Page',
-    data: page
-  };
-
   const SortMenuOptions = [
     {
       title: 'Newest',
@@ -78,7 +71,7 @@ const Moderation = () => {
     }
   ];
 
-  const { isLoading, isSuccess, refetch } = useQuery({
+  const { isLoading, isSuccess, refetch, isRefetching } = useQuery({
     queryKey: ['reported-users', page, sort],
     queryFn: async () => {
       return await client
@@ -112,39 +105,34 @@ const Moderation = () => {
             { data: Capitalize(data.data[i].reason) },
             { data: Capitalize(data.data[i].status) }
           ],
-          action: {
-            title: 'Ban',
-            function: () =>
-              banUser({ userid: data.data[i].reportedUser.id, reportid: data.data[i].id })
-          }
+          actions: [
+            {
+              title: 'Ban',
+              function: () =>
+                banUser({ userid: data.data[i].reportedUser.id, reportid: data.data[i].id }),
+              isDisabled: data.data[i].status !== 'pending review'
+            }
+          ]
         };
       }
 
       setTableContent(tmpTableContent);
     },
     onError: async (error: any) => {
-      try {
-        HandleError({ error, toast });
-      } catch (error) {
-        setServerError(true);
-      }
+      HandleError({ error, toast, router });
     }
   });
 
   const { mutate: banUser } = useMutation({
     mutationFn: async ({ userid, reportid }: any) => {
-      await client.post(`/report/ban-user/${userid}/${reportid}}`);
+      await client.post(`/report/ban-user/${userid}/${reportid}`);
     },
     onSuccess: async () => {
       refetch();
       HandleSuccess({ message: 'User has been banned.', toast });
     },
     onError: async (error: any) => {
-      try {
-        HandleError({ error, toast });
-      } catch (error) {
-        setServerError(true);
-      }
+      HandleError({ error, toast, router });
     }
   });
 
@@ -163,14 +151,15 @@ const Moderation = () => {
         <ContentTable
           headers={TableHeaders}
           content={TableContent}
-          caption={TableCaption}
-          loading={isLoading}
+          loading={isLoading || isRefetching}
           success={isSuccess}
         />
+        <Text color="accent_red" mt="10px" textAlign="center">
+          Page {page}
+        </Text>
       </Flex>
       {reportModal !== '' && <GetUserReport id={reportModal} setModal={setReportModal} />}
       {userModal !== '' && <GetUser id={userModal} setModal={setUserModal} />}
-      {serverError && <ServerError />}
     </>
   );
 };

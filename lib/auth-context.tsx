@@ -22,14 +22,10 @@ export function AuthProvider({ children }: any) {
   const router = useRouter();
 
   // Check if token is present in local storage or session storage
-  let token: string | null = null;
+  const token: string | null = localStorage.getItem('token');
 
-  if (localStorage.getItem('token') != null || sessionStorage.getItem('token') != null) {
+  if (token != null) {
     // Set flag to token if present
-    token =
-      localStorage.getItem('token') != null
-        ? localStorage.getItem('token')
-        : sessionStorage.getItem('token');
 
     // Set token in axios headers
     client.defaults.headers.common['Authorization'] = `Bearer ${token}`;

@@ -19,6 +19,8 @@ export const global_theme = extendTheme({
     accent_red: '#EF694D',
     accent_yellow: '#EFCB68',
     accent_yellow_light: '#FFF6E9',
-    accent_white: '#e1e1e1'
+    accent_yellow_dark: '#e9b82f',
+    accent_white: '#e1e1e1',
+    error_red: '#e53e3e'
   }
 });

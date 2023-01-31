@@ -34,7 +34,7 @@ const ServerError = () => {
             <ModalButton rightIcon={<IconLogout />} onClick={() => SignOut(router)}>
               Sign Out
             </ModalButton>
-            <ModalButton rightIcon={<IconRefresh />} onClick={() => router.reload()}>
+            <ModalButton rightIcon={<IconRefresh />} onClick={() => router.back()}>
               Retry
             </ModalButton>
           </AlertDialogFooter>

@@ -9,7 +9,7 @@ export const HandleSuccess = ({ message, toast }: any) => {
   });
 };
 
-export const HandleError = ({ error, toast }: any) => {
+export const HandleError = ({ error, toast, router }: any) => {
   try {
     return toast({
       title: 'Error!',
@@ -20,6 +20,6 @@ export const HandleError = ({ error, toast }: any) => {
       position: 'bottom-right'
     });
   } catch (error) {
-    throw 'server-error';
+    router.push('/dashboard#server-error');
   }
 };
