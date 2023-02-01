@@ -1712,6 +1712,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tabler/icons@npm:^1.119.0":
+  version: 1.119.0
+  resolution: "@tabler/icons@npm:1.119.0"
+  peerDependencies:
+    react: ^16.x || 17.x || 18.x
+    react-dom: ^16.x || 17.x || 18.x
+  peerDependenciesMeta:
+    react:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: ef1ac50c1a47b2205cb86ca43c28d69c7b8f547ad9c2c5545190fc4a455e9767f49cb511a6f9e8dc45b046ee7d2dab3d2c87af4fd5bbb1694832a15698158753
+  languageName: node
+  linkType: hard
+
 "@tanstack/query-core@npm:4.20.4":
   version: 4.20.4
   resolution: "@tanstack/query-core@npm:4.20.4"
@@ -2163,6 +2178,7 @@ __metadata:
     "@emotion/react": ^11.10.5
     "@emotion/styled": ^11.10.5
     "@next/font": 13.1.1
+    "@tabler/icons": ^1.119.0
     "@tanstack/react-query": ^4.20.4
     "@types/node": 18.11.18
     "@types/react": 18.0.26
