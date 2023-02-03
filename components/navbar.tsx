@@ -36,6 +36,7 @@ import client from '../lib/axios-service';
 import SignOut from '../lib/sign-out';
 import { HandleError } from '../lib/system-feedback';
 
+// Navbar component with id, title and icons
 const components = [
   {
     name: 'home',

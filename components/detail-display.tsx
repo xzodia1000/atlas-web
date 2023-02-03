@@ -1,5 +1,10 @@
 import { Flex, Text } from '@chakra-ui/react';
 
+/*
+ * Module for displaying details with title and description
+ * @param title - title of detail
+ * @param des - description of detail
+ */
 const DetailDisplay = ({ title, des }: any) => {
   return (
     <>

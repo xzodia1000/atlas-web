@@ -1,7 +1,6 @@
 import {
   Button,
   chakra,
-  Checkbox,
   Flex,
   IconButton,
   Input,

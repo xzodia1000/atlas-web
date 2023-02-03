@@ -29,6 +29,9 @@ const EventAnalyticsComponent = dynamic(() =>
 const ServerError = dynamic(() =>
   import('../components/overlays/server-error').then((mod) => mod.default)
 );
+const SessionExpired = dynamic(() =>
+  import('../components/overlays/session-expired').then((mod) => mod.default)
+);
 const NavbarComponent = dynamic(() => import('../components/navbar').then((mod) => mod.default));
 
 // Components
@@ -72,6 +75,11 @@ const components = [
     name: 'server-error',
     title: 'Server Error',
     component: <ServerError />
+  },
+  {
+    name: 'session-expired',
+    title: 'Session Expired',
+    component: <SessionExpired />
   }
 ];
 const regex = /#([^?]*)/;

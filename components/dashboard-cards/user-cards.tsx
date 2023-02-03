@@ -92,7 +92,7 @@ const UserStatCard = () => {
       setUserDetails(tmpUserDetails);
     },
     onError: (error: any) => {
-      HandleError({ error, toast, router });
+      // HandleError({ error, toast, router });
     }
   });
 
@@ -136,7 +136,7 @@ const UserAvatarCard = () => {
       setUserDetails(tmpUserDetails);
     },
     onError: (error: any) => {
-      HandleError({ error, toast, router });
+      // HandleError({ error, toast, router });
     }
   });
 

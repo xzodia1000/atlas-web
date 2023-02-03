@@ -15,7 +15,7 @@ export default function EditProfile() {
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
-  const { data, isLoading, isSuccess } = useQuery({
+  const { data, isLoading, isSuccess, refetch } = useQuery({
     queryKey: ['avatar'],
     queryFn: async () => {
       return await client.get('/user/avatar').then((res) => res.data);
@@ -34,14 +34,24 @@ export default function EditProfile() {
       const formData = new FormData();
       formData.append('avatar', avatar);
       console.log('image' + formData.get('avatar'));
-      return await client.patch('/user/avatar', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+
+      if (data !== '') {
+        return await client.patch('/user/avatar', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+      } else {
+        return await client.post('/user/avatar', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+      }
     },
     onSuccess: async () => {
       setAvatar(null);
+      refetch();
       HandleSuccess({ message: 'Avatar updated', toast });
     },
     onError: async (error: any) => {
@@ -55,6 +65,7 @@ export default function EditProfile() {
     },
     onSuccess: async () => {
       setAvatarUrl(null);
+      refetch();
       HandleSuccess({ message: 'Avatar deleted', toast });
     },
     onError: async (error: any) => {
@@ -107,7 +118,7 @@ export default function EditProfile() {
               Change Avatar
             </SubmitButton>
             <SubmitButton
-              isDisabled={data?.profilePictureUrl === ''}
+              isDisabled={data === '' || updating}
               bgColor="error_red"
               _disabled={{ _hover: { bgColor: 'error_red' } }}
               _hover={{ bgColor: 'red' }}

@@ -23,12 +23,13 @@ import { HandleError, HandleSuccess } from '../../lib/system-feedback';
 import { ModalButton } from '../../styles/components-styles';
 import DetailDisplay from '../detail-display';
 
-const listType: { data: IDetails[] | null } = { data: null };
+const listType: { data: IDetails[] | null } | null = { data: null };
 
 const GetPost = ({ id, setModal }: any) => {
   const toast = useToast();
   const router = useRouter();
   const [post, setPost] = useState(listType);
+  const [analytics, setAnalytics] = useState<{ data: IDetails[] | null } | null>(null);
 
   const { data, isLoading, isSuccess } = useQuery({
     queryKey: ['post'],
@@ -60,6 +61,33 @@ const GetPost = ({ id, setModal }: any) => {
     }
   });
 
+  useQuery({
+    queryKey: ['analytics'],
+    queryFn: async () => {
+      return await client.get(`/analytics/post/${id}`).then((res) => res.data);
+    },
+    onSuccess: async (data: any) => {
+      const tmpPost = {
+        data: [
+          { title: 'Total Interactions', des: data.interactionCount },
+          { title: 'Total Likes', des: data.likeCount },
+          { title: 'Total Comments', des: data.commentCount },
+          { title: 'Total Reports', des: data.reportCount },
+          { title: 'Total Appeals', des: data.appealCount },
+          { title: 'Banned Post', des: data.isTakenDown.toString() },
+          { title: 'Part of Scrapbook', des: data.isPartOfScrapbook.toString() },
+          { title: 'Posted On', des: data.createdAt.substring(0, 10) }
+        ]
+      };
+
+      setAnalytics(tmpPost);
+    },
+    onError: async (error: any) => {
+      HandleError({ error, toast, router });
+    },
+    enabled: analytics !== null
+  });
+
   const { isLoading: isUnbanLoading, mutate: unbanPost } = useMutation({
     mutationFn: async () => {
       return await client.post(`/report/unban-post/${id}`).then((res) => res.data);
@@ -85,7 +113,7 @@ const GetPost = ({ id, setModal }: any) => {
         <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(10px) hue-rotate(90deg)" />
         <ModalContent bgColor="gray.800">
           <Center>
-            <ModalHeader> </ModalHeader>
+            <ModalHeader>{analytics !== null ? 'Analytics' : ''}</ModalHeader>
           </Center>
           <ModalCloseButton
             bgColor="accent_red"
@@ -100,22 +128,30 @@ const GetPost = ({ id, setModal }: any) => {
           {isSuccess && (
             <ModalBody mt="5px">
               <Flex direction="column" gap={5}>
-                <Center>
-                  {data.imageUrl !== '' && (
-                    <Box
-                      bgColor="gray.700"
-                      h="300px"
-                      w="300px"
-                      rounded="5px"
-                      backgroundImage={data.imageUrl}
-                      backgroundSize="cover"
-                      backgroundPosition="center"
-                    />
-                  )}
-                </Center>
-                {post.data?.map((item: IDetails, index: number) => (
-                  <DetailDisplay key={index} title={item.title} des={item.des} />
-                ))}
+                {analytics === null && (
+                  <>
+                    <Center>
+                      {data.imageUrl !== '' && (
+                        <Box
+                          bgColor="gray.700"
+                          h="300px"
+                          w="300px"
+                          rounded="5px"
+                          backgroundImage={data.imageUrl}
+                          backgroundSize="cover"
+                          backgroundPosition="center"
+                        />
+                      )}
+                    </Center>
+                    {post.data?.map((item: IDetails, index: number) => (
+                      <DetailDisplay key={index} title={item.title} des={item.des} />
+                    ))}
+                  </>
+                )}
+                {analytics !== null &&
+                  analytics.data?.map((item: IDetails, index: number) => (
+                    <DetailDisplay key={index} title={item.title} des={item.des} />
+                  ))}
               </Flex>
             </ModalBody>
           )}
@@ -126,7 +162,11 @@ const GetPost = ({ id, setModal }: any) => {
               onClick={unbanPost}>
               Unban Post
             </ModalButton>
-            <ModalButton rightIcon={<IconChevronRight />}>View More Details</ModalButton>
+            <ModalButton
+              rightIcon={<IconChevronRight />}
+              onClick={() => (analytics === null ? setAnalytics(listType) : setAnalytics(null))}>
+              {analytics === null ? 'View Analytics' : 'View Post'}
+            </ModalButton>
           </ModalFooter>
         </ModalContent>
       </Modal>

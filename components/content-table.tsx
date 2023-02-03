@@ -12,6 +12,13 @@ import {
 import { IconExternalLink } from '@tabler/icons';
 import { TableButton, TableData, TableHeader } from '../styles/components-styles';
 
+/*
+ * Module for displaying content table
+ * @param headers - array of headers
+ * @param content - array of content
+ * @param success - boolean for if content is successfully fetched
+ * @param loading - boolean for if content is loading
+ */
 const ContentTable = ({ headers, content, success, loading }: any) => {
   return (
     <TableContainer
@@ -26,45 +33,48 @@ const ContentTable = ({ headers, content, success, loading }: any) => {
         </Center>
       )}
       <Table variant="striped" colorScheme="whiteAlpha">
-        <Thead>
-          <Tr>
-            {headers.map((header: any) => (
-              <TableHeader key={header.title}>
-                <Flex alignItems="center" gap={2}>
-                  {header.title}
-                  {header.link === true ? <IconExternalLink color="#EF694D" /> : null}
-                </Flex>
-              </TableHeader>
-            ))}
-          </Tr>
-        </Thead>
         {success && (
-          <Tbody>
-            {content.map((report: any, index: number) => (
-              <Tr key={'report' + index}>
-                {report.report.map((field: any, index: number) => (
-                  <TableData
-                    key={index}
-                    className={field.link === true ? 'isLink' : ''}
-                    onClick={field.link === true ? field.function : null}>
-                    {field.data}
-                  </TableData>
+          <>
+            <Thead>
+              <Tr>
+                {headers.map((header: any) => (
+                  <TableHeader key={header.title}>
+                    <Flex alignItems="center" gap={2}>
+                      {header.title}
+                      {header.link === true ? <IconExternalLink color="#EF694D" /> : null}
+                    </Flex>
+                  </TableHeader>
                 ))}
-                <Td>
-                  <Flex gap={5}>
-                    {report.actions.map((action: any, index: number) => (
-                      <TableButton
-                        key={index}
-                        onClick={action.function}
-                        isDisabled={action.isDisabled}>
-                        {action.title}
-                      </TableButton>
-                    ))}
-                  </Flex>
-                </Td>
               </Tr>
-            ))}
-          </Tbody>
+            </Thead>
+
+            <Tbody>
+              {content.map((report: any, index: number) => (
+                <Tr key={'report' + index}>
+                  {report.report.map((field: any, index: number) => (
+                    <TableData
+                      key={index}
+                      className={field.link === true ? 'isLink' : ''}
+                      onClick={field.link === true ? field.function : null}>
+                      {field.data}
+                    </TableData>
+                  ))}
+                  <Td>
+                    <Flex gap={5}>
+                      {report.actions.map((action: any, index: number) => (
+                        <TableButton
+                          key={index}
+                          onClick={action.function}
+                          isDisabled={action.isDisabled}>
+                          {action.title}
+                        </TableButton>
+                      ))}
+                    </Flex>
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </>
         )}
       </Table>
     </TableContainer>
