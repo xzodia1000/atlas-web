@@ -13,7 +13,6 @@ const UserCardContainer = chakra(Box, {
   baseStyle: {
     h: '100%',
     w: '100%',
-    overflow: 'scroll',
     bgColor: 'gray.900',
     rounded: '20px',
     border: '1px solid',

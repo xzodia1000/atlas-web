@@ -64,7 +64,7 @@ const GetPost = ({ id, setModal }: any) => {
   useQuery({
     queryKey: ['analytics'],
     queryFn: async () => {
-      return await client.get(`/analytics/post/${id}`).then((res) => res.data);
+      return await client.get(`/analytics/admin/post/${id}`).then((res) => res.data);
     },
     onSuccess: async (data: any) => {
       const tmpPost = {

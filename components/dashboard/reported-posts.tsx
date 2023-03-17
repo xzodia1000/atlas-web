@@ -76,40 +76,42 @@ const ReportedPosts = () => {
 
       const tmpTableContent: any = [];
       for (let i = 0; i < data.data.length; i++) {
-        tmpTableContent[i] = {
-          report: [
-            {
-              data: data.data[i].id,
-              link: true,
-              function: () => setReportModal(data.data[i].reportedPost.id)
-            },
-            {
-              data: data.data[i].reportedBy.username,
-              link: true,
-              function: () => setUserModal(data.data[i].reportedBy.id)
-            },
-            {
-              data: data.data[i].reportedPost.id,
-              link: true,
-              function: () => setPostModal(data.data[i].reportedPost.id)
-            },
-            {
-              data: data.data[i].reportedPost.postedBy.username,
-              link: true,
-              function: () => setUserModal(data.data[i].reportedPost.postedBy.id)
-            },
-            { data: Capitalize(data.data[i].reason) },
-            { data: Capitalize(data.data[i].status) }
-          ],
-          actions: [
-            {
-              title: 'Ban',
-              function: () =>
-                banPost({ postid: data.data[i].reportedPost.id, reportid: data.data[i].id }),
-              isDisabled: data.data[i].status !== 'pending review'
-            }
-          ]
-        };
+        if (data.data[i].reportedPost) {
+          tmpTableContent[i] = {
+            report: [
+              {
+                data: data.data[i].id,
+                link: true,
+                function: () => setReportModal(data.data[i].reportedPost.id)
+              },
+              {
+                data: data.data[i].reportedBy.username,
+                link: true,
+                function: () => setUserModal(data.data[i].reportedBy.id)
+              },
+              {
+                data: data.data[i].reportedPost.id,
+                link: true,
+                function: () => setPostModal(data.data[i].reportedPost.id)
+              },
+              {
+                data: data.data[i].reportedPost.postedBy.username,
+                link: true,
+                function: () => setUserModal(data.data[i].reportedPost.postedBy.id)
+              },
+              { data: Capitalize(data.data[i].reason) },
+              { data: Capitalize(data.data[i].status) }
+            ],
+            actions: [
+              {
+                title: 'Ban',
+                function: () =>
+                  banPost({ postid: data.data[i].reportedPost.id, reportid: data.data[i].id }),
+                isDisabled: data.data[i].status !== 'pending review'
+              }
+            ]
+          };
+        }
       }
 
       setTableContent(tmpTableContent);

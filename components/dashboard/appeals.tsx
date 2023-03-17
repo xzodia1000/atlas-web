@@ -29,6 +29,7 @@ const Appeals = () => {
   const router = useRouter();
 
   const [sort, setSort] = useState('DESC');
+  const [filter, setFilter] = useState('all');
   const [page, setPage] = useState(1);
   const [nextPage, setNextPage] = useState(true);
   const [previousPage, setPreviousPage] = useState(true);
@@ -58,8 +59,44 @@ const Appeals = () => {
     }
   ];
 
+  const FilterMenuOptions = [
+    {
+      title: 'All',
+      value: 'all',
+      function: () => {
+        setFilter('all');
+        setPage(1);
+      }
+    },
+    {
+      title: 'Pending Review',
+      value: 'pending review',
+      function: () => {
+        setFilter('pending review');
+        setPage(1);
+      }
+    },
+    {
+      title: 'Accepted',
+      value: 'accepted',
+
+      function: () => {
+        setFilter('accepted');
+        setPage(1);
+      }
+    },
+    {
+      title: 'Rejected',
+      value: 'rejected',
+      function: () => {
+        setFilter('rejected');
+        setPage(1);
+      }
+    }
+  ];
+
   const { isLoading, isSuccess, refetch, isRefetching } = useQuery({
-    queryKey: ['post-appeals', page, sort],
+    queryKey: ['post-appeals', page, sort, filter],
     queryFn: async () => {
       return await client
         .get(`/appeals/post-appeals?order=${sort}&page=${page}&take=10`)
@@ -74,40 +111,42 @@ const Appeals = () => {
 
       const tmpTableContent: any = [];
       for (let i = 0; i < data.data.length; i++) {
-        tmpTableContent[i] = {
-          report: [
-            {
-              data: data.data[i].id,
-              link: true,
-              function: () => setAppealModal(data.data[i])
-            },
-            {
-              data: data.data[i].appealedBy.username,
-              link: true,
-              function: () => setUserModal(data.data[i].appealedBy.id)
-            },
-            {
-              data: data.data[i].appealedPost.id,
-              link: true,
-              function: () => setPostModal(data.data[i].appealedPost.id)
-            },
-            { data: Capitalize(data.data[i].reportReason) },
-            { data: data.data[i].text },
-            { data: Capitalize(data.data[i].status) }
-          ],
-          actions: [
-            {
-              title: 'Accept',
-              function: () => appeal({ action: 'accept', postid: data.data[i].appealedPost.id }),
-              isDisabled: data.data[i].status !== 'pending review'
-            },
-            {
-              title: 'Reject',
-              function: () => appeal({ action: 'reject', postid: data.data[i].appealedPost.id }),
-              isDisabled: data.data[i].status !== 'pending review'
-            }
-          ]
-        };
+        if (data.data[i].status === filter || filter === 'all') {
+          tmpTableContent[i] = {
+            report: [
+              {
+                data: data.data[i].id,
+                link: true,
+                function: () => setAppealModal(data.data[i])
+              },
+              {
+                data: data.data[i].appealedBy.username,
+                link: true,
+                function: () => setUserModal(data.data[i].appealedBy.id)
+              },
+              {
+                data: data.data[i].appealedPost.id,
+                link: true,
+                function: () => setPostModal(data.data[i].appealedPost.id)
+              },
+              { data: Capitalize(data.data[i].reportReason) },
+              { data: data.data[i].text },
+              { data: Capitalize(data.data[i].status) }
+            ],
+            actions: [
+              {
+                title: 'Accept',
+                function: () => appeal({ action: 'accept', postid: data.data[i].appealedPost.id }),
+                isDisabled: data.data[i].status !== 'pending review'
+              },
+              {
+                title: 'Reject',
+                function: () => appeal({ action: 'reject', postid: data.data[i].appealedPost.id }),
+                isDisabled: data.data[i].status !== 'pending review'
+              }
+            ]
+          };
+        }
       }
 
       setTableContent(tmpTableContent);
@@ -135,6 +174,7 @@ const Appeals = () => {
       <Flex h="100%" direction="column">
         <Flex mb="10px" alignItems="center" gap={3}>
           <DropdownMenu options={SortMenuOptions} title="Sort" currentOption={sort} />
+          <DropdownMenu options={FilterMenuOptions} title="Filter" currentOption={filter} />
           <Spacer />
           <TableButtons
             next={{ value: nextPage, function: () => setPage(page + 1) }}

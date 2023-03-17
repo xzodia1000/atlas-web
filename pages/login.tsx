@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { FormEvent, useRef, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import client from '../lib/axios-service';
 import { InputField, ModalButton } from '../styles/components-styles';
 import {
@@ -24,7 +24,7 @@ import {
 } from '@chakra-ui/react';
 import { SubmitButton } from '../styles/components-styles';
 import { IconRefresh } from '@tabler/icons';
-import { HandleSuccess } from '../lib/system-feedback';
+import { HandleError, HandleSuccess } from '../lib/system-feedback';
 
 export default function Login() {
   // Router instance to redirect user to home page after login
@@ -36,9 +36,10 @@ export default function Login() {
   // Chakra UI toast
   const toast = useToast();
 
-  // State variables to store email, password and remember me checkbox
+  // State variables to store email, password
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [token, setToken] = useState('');
 
   // Error variables
   const [error, setError] = useState(false);
@@ -67,17 +68,12 @@ export default function Login() {
       setSigningIn(true);
 
       // Get token from response
-      const token = response.data.access_token;
+      const _token = response.data.access_token;
+      setToken(_token);
 
-      // Save token in local storage
-      localStorage.setItem('token', token);
-
-      // Redirect user to dashboard after a delay
       setTimeout(() => {
-        router.push('/dashboard');
+        refetch();
       }, 2e3);
-
-      HandleSuccess({ message: 'Redirecting to dashboard', toast });
     },
 
     // Callbacks to handle error
@@ -94,6 +90,43 @@ export default function Login() {
       }
     }
   });
+
+  const { refetch } = useQuery({
+    queryKey: ['checkAdmin'],
+    enabled: false,
+    queryFn: async () => {
+      client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      return await client.get('/user/profile').then((res) => res.data);
+    },
+    onSuccess: async (data) => {
+      if (data.role !== 'admin') {
+        notAdmin();
+      } else {
+        // Save token in local storage
+        localStorage.setItem('token', token);
+
+        // Redirect user to dashboard after a delay
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 2e3);
+
+        HandleSuccess({ message: 'Redirecting to dashboard', toast });
+      }
+    },
+    onError: async (error: any) => {
+      setSigningIn(false);
+      HandleError({ error, toast, router });
+    }
+  });
+
+  const notAdmin = () => {
+    setSigningIn(false);
+    HandleError({
+      error: { response: { data: { message: 'You are not and admin.' } } },
+      toast,
+      router
+    });
+  };
 
   // Function to handle form submit
   const postData = async (event: FormEvent<HTMLFormElement>) => {
