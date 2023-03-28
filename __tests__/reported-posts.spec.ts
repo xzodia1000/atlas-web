@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Moderation', () => {
+test.describe('Reported Posts', () => {
   let baseURL: string;
 
   test.beforeAll(async () => {
@@ -22,9 +22,9 @@ test.describe('Moderation', () => {
     }
 
     await page.waitForSelector('#aside');
-    const navItem = await page.$('#aside #moderation');
+    const navItem = await page.$('#aside #reported-posts');
     await navItem?.click();
-    await page.waitForURL(`${baseURL}/dashboard#moderation`, { timeout: 50000 });
+    await page.waitForURL(`${baseURL}/dashboard#reported-posts`, { timeout: 50000 });
     await page.waitForSelector('thead');
   });
 
@@ -34,9 +34,10 @@ test.describe('Moderation', () => {
     );
 
     expect(tableHeaders).toEqual([
-      'Report ID',
+      'Reported ID',
       'Reported By',
-      'Reported User',
+      'Post ID',
+      'Post by',
       'Reason',
       'Status',
       'Actions'

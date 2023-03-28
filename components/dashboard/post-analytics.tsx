@@ -15,7 +15,7 @@ const GetUser = dynamic(() => import('../overlays/get-user').then((mod) => mod.d
 const TableHeaders = [
   { title: 'Post ID', link: true },
   { title: 'Posted By', link: true },
-  { title: 'Visiblity' },
+  { title: 'Visibility' },
   { title: 'Location' },
   { title: 'Likes Count' },
   { title: 'Comments Count' },
