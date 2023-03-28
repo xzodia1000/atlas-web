@@ -11,13 +11,19 @@ import { SmallButton } from '../styles/components-styles';
 const TableButtons = ({ next, previous, refetch }: any) => {
   return (
     <Flex gap={3}>
-      <SmallButton onClick={refetch} icon={<IconRefresh />} />
+      <SmallButton id="refresh" onClick={refetch} icon={<IconRefresh />} />
       <SmallButton
+        id="previous"
         onClick={previous.function}
         isDisabled={previous.value}
         icon={<IconChevronLeft />}
       />
-      <SmallButton onClick={next.function} isDisabled={next.value} icon={<IconChevronRight />} />
+      <SmallButton
+        id="next"
+        onClick={next.function}
+        isDisabled={next.value}
+        icon={<IconChevronRight />}
+      />
     </Flex>
   );
 };
