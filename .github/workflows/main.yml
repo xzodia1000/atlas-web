@@ -17,19 +17,14 @@ jobs:
         run: yarn
       - name: Build project
         run: yarn build
-      # - name: Start local server
-      #   run: yarn start &
-      # - name: Wait for the server to be ready
-      #   run: sleep 10s
-      # - name: Install Playwright Browsers
-      #   run: yarn playwright install --with-deps
-      # - name: Run Playwright tests
-      # run: yarn playwright test
-      - name: Deploy Site
-        env:
-          NETLIFY_SITE_ID: ${{ secrets.NETLFY_APP_ID }}
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN }}
-        run: netlify deploy --prod
+      - name: Start local server
+        run: yarn start &
+      - name: Wait for the server to be ready
+        run: sleep 10s
+      - name: Install Playwright Browsers
+        run: yarn playwright install --with-deps
+      - name: Run Playwright tests
+        run: yarn playwright test
       - uses: actions/upload-artifact@v3
         if: always()
         with:
