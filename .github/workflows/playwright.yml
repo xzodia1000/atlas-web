@@ -19,6 +19,7 @@ jobs:
         run: yarn build
       - name: Start local server
         run: yarn start
+        background: true
       - name: Install Playwright Browsers
         run: yarn playwright install --with-deps
       - name: Run Playwright tests
