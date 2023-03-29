@@ -11,7 +11,7 @@ import { AppMenu, AppMenuItem, AppMenuList } from '../styles/components-styles';
 const DropdownMenu = ({ options, title, currentOption }: any) => {
   return (
     <Menu>
-      <MenuButton as={AppMenu} rightIcon={<IconChevronDown />}>
+      <MenuButton id={title} as={AppMenu} rightIcon={<IconChevronDown />}>
         {title}
       </MenuButton>
       <AppMenuList>

@@ -99,6 +99,7 @@ const SiderBar = () => {
   const router = useRouter();
   return (
     <Box
+      id="aside"
       pos={'fixed'}
       h={'100vh'}
       w={'240px'}
@@ -125,6 +126,7 @@ const SiderBar = () => {
       </Flex>
       {components.map((component) => (
         <Flex
+          id={component.name}
           key={component.name}
           className={
             router.asPath.split('#')[1] === component.name ||
