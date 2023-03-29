@@ -8,7 +8,6 @@ export default function Home() {
         <link rel="icon" href="/logo.png" />
       </Head>
 
-      <h1>Root</h1>
     </>
   );
 }
