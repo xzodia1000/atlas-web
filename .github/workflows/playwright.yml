@@ -15,6 +15,10 @@ jobs:
           node-version: 16
       - name: Install dependencies
         run: yarn
+      - name: Build project
+        run: yarn build
+      - name: Start local server
+        run: yarn start
       - name: Install Playwright Browsers
         run: yarn playwright install --with-deps
       - name: Run Playwright tests
