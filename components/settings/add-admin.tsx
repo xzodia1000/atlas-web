@@ -7,6 +7,7 @@ import client from '../../lib/axios-service';
 import { HandleError, HandleSuccess } from '../../lib/system-feedback';
 import { Field, InputField, SubmitButton } from '../../styles/components-styles';
 
+// This is the add admin component
 export default function AddAdmin() {
   const toast = useToast();
   const router = useRouter();
@@ -21,9 +22,11 @@ export default function AddAdmin() {
   const [address, setAddress] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
 
+  // Function to add admin
   const { isLoading, mutate: addAdmin } = useMutation<any, Error>({
     mutationFn: async () => {
       if (password !== confirmPassword) {
+        // Throw error if passwords do not match
         throw {
           response: {
             data: {
@@ -33,6 +36,7 @@ export default function AddAdmin() {
         };
       }
       if (password.length < 8) {
+        // Throw error if password is less than 8 characters
         throw {
           response: {
             data: {
@@ -42,6 +46,7 @@ export default function AddAdmin() {
         };
       }
 
+      // Post data to server
       return await client.post('/auth/admin/signup', {
         firstName,
         lastName,
@@ -55,6 +60,7 @@ export default function AddAdmin() {
       });
     },
     onSuccess: async () => {
+      // Show success message
       HandleSuccess({ message: 'Admin added successfully', toast, router });
       setFirstName('');
       setLastName('');
@@ -67,10 +73,12 @@ export default function AddAdmin() {
       setDateOfBirth('');
     },
     onError: async (error: any) => {
+      // Show error message
       HandleError({ error, toast, router });
     }
   });
 
+  // Function to handle form submission
   const postData = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     addAdmin();

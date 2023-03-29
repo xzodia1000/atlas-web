@@ -25,18 +25,22 @@ import DetailDisplay from '../detail-display';
 
 const listType: { data: IDetails[] | null } | null = { data: null };
 
+// This is the post modal
 const GetPost = ({ id, setModal }: any) => {
   const toast = useToast();
   const router = useRouter();
   const [post, setPost] = useState(listType);
-  const [analytics, setAnalytics] = useState<{ data: IDetails[] | null } | null>(null);
+  const [analytics, setAnalytics] = useState<{ data: IDetails[] | null } | null>(null); // This is the analytics data
 
+  // Function to get post
   const { data, isLoading, isSuccess } = useQuery({
     queryKey: ['post'],
     queryFn: async () => {
+      // Get post data from server
       return await client.get(`/post/${id}`).then((res) => res.data);
     },
     onSuccess: async (data: any) => {
+      // Format the data into a format that can be displayed by the DetailDisplay component
       const tmpPost = {
         data: [
           { title: 'Post ID', des: data.id },
@@ -54,19 +58,24 @@ const GetPost = ({ id, setModal }: any) => {
         ]
       };
 
+      // Set the post data
       setPost(tmpPost);
     },
     onError: async (error: any) => {
+      // Handle error
       HandleError({ error, toast, router });
     }
   });
 
+  // Function to get analytics
   useQuery({
     queryKey: ['analytics'],
     queryFn: async () => {
+      // Get analytics data from server
       return await client.get(`/analytics/admin/post/${id}`).then((res) => res.data);
     },
     onSuccess: async (data: any) => {
+      // Format the data into a format that can be displayed by the DetailDisplay component
       const tmpPost = {
         data: [
           { title: 'Total Interactions', des: data.interactionCount },
@@ -80,16 +89,20 @@ const GetPost = ({ id, setModal }: any) => {
         ]
       };
 
+      // Set the analytics data
       setAnalytics(tmpPost);
     },
     onError: async (error: any) => {
+      // Handle error
       HandleError({ error, toast, router });
     },
-    enabled: analytics !== null
+    enabled: analytics !== null // Only run if analytics is not null
   });
 
+  // Function to unban post if it is banned
   const { isLoading: isUnbanLoading, mutate: unbanPost } = useMutation({
     mutationFn: async () => {
+      // Send request to server to unban post
       return await client.post(`/report/unban-post/${id}`).then((res) => res.data);
     },
     onSuccess: async () => {

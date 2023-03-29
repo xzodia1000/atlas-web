@@ -9,9 +9,11 @@ import ContentTable from '../content-table';
 import DropdownMenu from '../dropdown-menu';
 import TableButtons from '../table-buttons';
 
+// Dynamic imports
 const GetUser = dynamic(() => import('../overlays/get-user').then((mod) => mod.default));
 const GetEvent = dynamic(() => import('../overlays/get-event').then((mod) => mod.default));
 
+// Table headers
 const TableHeaders = [
   { title: 'Event ID', link: true },
   { title: 'Event Host', link: true },
@@ -20,6 +22,7 @@ const TableHeaders = [
   { title: 'Number of Participants' }
 ];
 
+// This is the event analytics page
 const Events = () => {
   const toast = useToast();
   const router = useRouter();
@@ -34,6 +37,7 @@ const Events = () => {
 
   const [TableContent, setTableContent] = useState([]);
 
+  // Sort menu options
   const SortMenuOptions = [
     {
       title: 'Newest',
@@ -53,19 +57,23 @@ const Events = () => {
     }
   ];
 
+  // Fuction to get the event analytics
   const { isLoading, isSuccess, refetch, isRefetching } = useQuery({
     queryKey: ['event-analytics', page, sort],
     queryFn: async () => {
+      // Get the active events from the API
       return await client
         .get(`/event/active-events?order=${sort}&page=${page}&take=13`)
         .then((res) => res.data);
     },
     onSuccess: (data) => {
+      // Set the next and previous page
       setNextPage(!data.meta.hasNextPage);
       setPreviousPage(!data.meta.hasPreviousPage);
 
       const tmpTableContent: any = [];
       for (let i = 0; i < data.data.length; i++) {
+        // Add the data to the table
         tmpTableContent[i] = {
           report: [
             {
@@ -92,6 +100,7 @@ const Events = () => {
         };
       }
 
+      // Set the table content
       setTableContent(tmpTableContent);
     },
     onError: async (error: any) => {

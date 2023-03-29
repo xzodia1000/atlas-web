@@ -2,7 +2,9 @@ import { extendTheme } from '@chakra-ui/react';
 import { Lexend_Deca } from '@next/font/google';
 
 // This is the global theme for the entire app.
-const lexenddeca = Lexend_Deca();
+const lexenddeca = Lexend_Deca({
+  subsets: ['latin']
+});
 
 export const global_theme = extendTheme({
   styles: {

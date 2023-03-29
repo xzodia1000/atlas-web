@@ -9,9 +9,11 @@ import { HandleError } from '../../lib/system-feedback';
 import ContentTable from '../content-table';
 import TableButtons from '../table-buttons';
 
+// Dynamic imports
 const GetPost = dynamic(() => import('../overlays/get-post').then((mod) => mod.default));
 const GetUser = dynamic(() => import('../overlays/get-user').then((mod) => mod.default));
 
+// Table headers
 const TableHeaders = [
   { title: 'Post ID', link: true },
   { title: 'Posted By', link: true },
@@ -22,6 +24,7 @@ const TableHeaders = [
   { title: 'Posted At' }
 ];
 
+// This is the post analytics page
 const PostAnalytics = () => {
   const toast = useToast();
   const router = useRouter();
@@ -34,23 +37,29 @@ const PostAnalytics = () => {
   const [userModal, setUserModal] = useState('');
 
   const [TableContent, setTableContent] = useState([]);
+
+  // Table caption
   const TableCaption = {
     title: 'Page',
     data: page
   };
 
+  // Get post analytics
   const { isLoading, isSuccess, refetch, isRefetching } = useQuery({
     queryKey: ['post-analytics', page],
     queryFn: async () => {
+      // Get post analytics
       return await client.get(`/feed?page=${page}&take=13`).then((res) => res.data);
     },
     onSuccess: async (data: any) => {
+      // Set page data
       setPage(data.meta.page);
       setNextPage(!data.meta.hasNextPage);
       setPreviousPage(!data.meta.hasPreviousPage);
 
       const tmpTableContent: any = [];
       for (let i = 0; i < data.data.length; i++) {
+        // Format table content
         tmpTableContent[i] = {
           report: [
             {
@@ -73,6 +82,7 @@ const PostAnalytics = () => {
         };
       }
 
+      // Set table content
       setTableContent(tmpTableContent);
     },
     onError: (error: any) => {

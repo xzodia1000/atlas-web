@@ -1,6 +1,7 @@
 import { Flex } from '@chakra-ui/react';
 import { UserAvatarCard, UserCard, UserStatCard } from '../dashboard-cards/user-cards';
 
+// This is the dashboard page
 const Dashboard = () => {
   return (
     <>

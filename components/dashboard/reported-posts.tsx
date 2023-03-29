@@ -10,12 +10,14 @@ import ContentTable from '../content-table';
 import DropdownMenu from '../dropdown-menu';
 import TableButtons from '../table-buttons';
 
+// Dynamic imports
 const GetPost = dynamic(() => import('../overlays/get-post').then((mod) => mod.default));
 const GetPostReport = dynamic(() =>
   import('../overlays/get-post-report').then((mod) => mod.default)
 );
 const GetUser = dynamic(() => import('../overlays/get-user').then((mod) => mod.default));
 
+// Table headers
 const TableHeaders = [
   { title: 'Reported ID', link: true },
   { title: 'Reported By', link: true },
@@ -26,6 +28,7 @@ const TableHeaders = [
   { title: 'Actions' }
 ];
 
+// This is the reported posts page
 const ReportedPosts = () => {
   const toast = useToast();
   const router = useRouter();
@@ -41,6 +44,7 @@ const ReportedPosts = () => {
 
   const [TableContent, setTableContent] = useState([]);
 
+  // Sort menu options
   const SortMenuOptions = [
     {
       title: 'Newest',
@@ -60,22 +64,27 @@ const ReportedPosts = () => {
     }
   ];
 
+  // Fetch reported posts
   const { isLoading, isSuccess, refetch, isRefetching } = useQuery({
     queryKey: ['reported-posts', page, sort],
     queryFn: async () => {
+      // Get reported posts from server
       return await client
         .get(`/report/reported-posts?order=${sort}&page=${page}&take=13`)
         .then((res) => res.data);
     },
     onSuccess: async (data: any) => {
-      setPage(data.meta.page);
+      // Set table content on success
+      setPage(data.meta.page); // Set page number
       if (data.meta.itemCount === 10) {
-        setNextPage(false);
+        setNextPage(false); // If there are 10 items, there is a next page
       }
-      setPreviousPage(!data.meta.hasPreviousPage);
+      setPreviousPage(!data.meta.hasPreviousPage); // If there is a previous page, set previous page to false
 
       const tmpTableContent: any = [];
+      // Loop through reported posts
       for (let i = 0; i < data.data.length; i++) {
+        // Format data for table content and add to tmpTableContent
         if (data.data[i].reportedPost) {
           tmpTableContent[i] = {
             report: [
@@ -114,6 +123,7 @@ const ReportedPosts = () => {
         }
       }
 
+      // Set table content
       setTableContent(tmpTableContent);
     },
     onError: async (error: any) => {
@@ -121,11 +131,14 @@ const ReportedPosts = () => {
     }
   });
 
+  // Ban post mutation function
   const { mutate: banPost } = useMutation({
     mutationFn: async ({ postid, reportid }: any) => {
+      // Send ban post request to server
       return await client.post(`/report/ban-post/${postid}/${reportid}`);
     },
     onSuccess: async () => {
+      // Refetch data on success
       refetch();
       HandleSuccess({ message: 'Post has been taken down.', toast });
     },

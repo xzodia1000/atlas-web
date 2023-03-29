@@ -1,10 +1,7 @@
 import { Flex, Text } from '@chakra-ui/react';
 
-/*
- * Module for displaying details with title and description
- * @param title - title of detail
- * @param des - description of detail
- */
+// This component is used to display the details with the title
+// and description for a modal
 const DetailDisplay = ({ title, des }: any) => {
   return (
     <>

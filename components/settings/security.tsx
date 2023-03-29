@@ -10,7 +10,7 @@ import {
   Text,
   useToast
 } from '@chakra-ui/react';
-import { IconLogout, IconRefresh, IconTrash } from '@tabler/icons';
+import { IconTrash } from '@tabler/icons';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
@@ -19,21 +19,28 @@ import SignOut from '../../lib/sign-out';
 import client from '../../lib/axios-service';
 import { HandleError, HandleSuccess } from '../../lib/system-feedback';
 
+// This is the security settings component
 export default function SecuritySettings() {
   const toast = useToast();
   const router = useRouter();
   const cancelRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
+  // Function to delete account
   const { isLoading, mutate: deleteAccount } = useMutation<any, Error>({
     mutationFn: async () => {
+      // Delete account on server
       return await client.delete('/user/delete');
     },
     onSuccess: async () => {
+      // Handle success
       HandleSuccess({ toast, message: 'Account deleted successfully' });
+
+      // Sign out user and redirect to login page
       SignOut(router);
     },
     onError: async (error: any) => {
+      // Handle error
       HandleError({ toast, error, router });
       setIsOpen(false);
     }

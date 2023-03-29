@@ -13,9 +13,9 @@ import IDetails from '../../interfaces/IDetails';
 import Capitalize from '../../lib/capitalize-letter';
 import DetailDisplay from '../detail-display';
 
+// This is the appeal modal
 const GetAppeal = ({ id, setModal }: any) => {
-  console.log(id);
-
+  // Format the data into a format that can be displayed by the DetailDisplay component
   const appeal: { data: IDetails[] | null } = {
     data: [
       { title: 'Appeal ID', des: id.id },

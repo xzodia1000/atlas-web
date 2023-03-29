@@ -36,7 +36,7 @@ import client from '../lib/axios-service';
 import SignOut from '../lib/sign-out';
 import { HandleError } from '../lib/system-feedback';
 
-// Navbar component with id, title and icons
+// Navbar components with id, title and icons
 const components = [
   {
     name: 'home',
@@ -75,6 +75,7 @@ const components = [
   }
 ];
 
+// Navbar component
 export default function SidebarWithHeader({ children }: { children: ReactNode }) {
   return (
     <>
@@ -95,6 +96,7 @@ export default function SidebarWithHeader({ children }: { children: ReactNode })
   );
 }
 
+// Sidebar component
 const SiderBar = () => {
   const router = useRouter();
   return (
@@ -161,10 +163,12 @@ const SiderBar = () => {
   );
 };
 
+// Topbar component
 const TopBar = () => {
   const router = useRouter();
   const toast = useToast();
 
+  // Get user profile
   const { isLoading, isError, isSuccess, data } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
@@ -175,6 +179,7 @@ const TopBar = () => {
     }
   });
 
+  // Get page title
   const title =
     components.find((component) => component.name === router.asPath.split('#')[1])?.title ??
     'Dashboard';

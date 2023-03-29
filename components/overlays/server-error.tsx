@@ -12,9 +12,7 @@ import { useRef } from 'react';
 import SignOut from '../../lib/sign-out';
 import { ModalButton } from '../../styles/components-styles';
 
-/**
- * Server error overlay
- */
+// This is the server error overlay modal
 const ServerError = () => {
   const router = useRouter();
   const cancelRef = useRef(null);

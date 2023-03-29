@@ -23,11 +23,13 @@ import { HandleError, HandleSuccess } from '../../lib/system-feedback';
 import { AppMenu, InputField, SmallButton, SubmitButton } from '../../styles/components-styles';
 import DropdownMenu from '../dropdown-menu';
 
+// This is the user Interface
 interface User {
   id: string;
   username: string;
 }
 
+// This is the notification control page
 const NotificationControl = () => {
   const toast = useToast();
   const router = useRouter();
@@ -38,6 +40,7 @@ const NotificationControl = () => {
   const [targetUserId, setTargetUserId] = useState<User | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+  // Filter menu options
   const MenuOptions = [
     {
       title: 'All',
@@ -70,9 +73,11 @@ const NotificationControl = () => {
     }
   ];
 
+  // This is the search user query
   const { isLoading: sending, mutate: sendNotification } = useMutation<any, Error>({
     mutationFn: async () => {
       if (targetGroup === 'singleUser') {
+        // Send notification to a single user
         return await client.post('/notification/send', {
           title,
           body,
@@ -80,6 +85,7 @@ const NotificationControl = () => {
           targetUserId: targetUserId?.id
         });
       } else {
+        // Send notification to a group
         return await client.post('/notification/send', {
           title,
           body,

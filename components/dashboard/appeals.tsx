@@ -10,10 +10,12 @@ import ContentTable from '../content-table';
 import DropdownMenu from '../dropdown-menu';
 import TableButtons from '../table-buttons';
 
+// Dynamic imports
 const GetAppeal = dynamic(() => import('../overlays/get-appeal').then((mod) => mod.default));
 const GetPost = dynamic(() => import('../overlays/get-post').then((mod) => mod.default));
 const GetUser = dynamic(() => import('../overlays/get-user').then((mod) => mod.default));
 
+// Table headers
 const TableHeaders = [
   { title: 'Appeal ID', link: true },
   { title: 'Appealed By', link: true },
@@ -24,6 +26,7 @@ const TableHeaders = [
   { title: 'Actions' }
 ];
 
+// This is the appeals page
 const Appeals = () => {
   const toast = useToast();
   const router = useRouter();
@@ -40,6 +43,7 @@ const Appeals = () => {
 
   const [TableContent, setTableContent] = useState([]);
 
+  // Sort menu options
   const SortMenuOptions = [
     {
       title: 'Newest',
@@ -59,6 +63,7 @@ const Appeals = () => {
     }
   ];
 
+  // Filter menu options
   const FilterMenuOptions = [
     {
       title: 'All',
@@ -95,14 +100,17 @@ const Appeals = () => {
     }
   ];
 
+  // Function to get appeals
   const { isLoading, isSuccess, refetch, isRefetching } = useQuery({
     queryKey: ['post-appeals', page, sort, filter],
     queryFn: async () => {
+      // Get appeals
       return await client
         .get(`/appeals/post-appeals?order=${sort}&page=${page}&take=10`)
         .then((res) => res.data);
     },
     onSuccess: (data) => {
+      // Set pagination
       setPage(data.meta.page);
       if (data.meta.itemCount === 10) {
         setNextPage(false);
@@ -111,6 +119,7 @@ const Appeals = () => {
 
       const tmpTableContent: any = [];
       for (let i = 0; i < data.data.length; i++) {
+        // Check if the appeal is accepted or rejected
         if (data.data[i].status === filter || filter === 'all') {
           tmpTableContent[i] = {
             report: [
@@ -149,6 +158,7 @@ const Appeals = () => {
         }
       }
 
+      // Set table content
       setTableContent(tmpTableContent);
     },
     onError: (error: any) => {
@@ -156,11 +166,14 @@ const Appeals = () => {
     }
   });
 
+  // Function to handle appeals
   const { mutate: appeal } = useMutation({
     mutationFn: async ({ action, postid }: any) => {
+      // Send request to handle appeal to the server
       return await client.patch(`/appeals/${action}-appeal/${postid}`);
     },
     onSuccess: () => {
+      // Refetch appeals
       refetch();
       HandleSuccess({ toast, message: 'Appeal has been handled' });
     },

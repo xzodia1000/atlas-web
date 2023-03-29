@@ -12,7 +12,9 @@ import {
 } from '@chakra-ui/react';
 import { Rubik } from '@next/font/google';
 
-const rubik = Rubik();
+const rubik = Rubik({
+  subsets: ['latin']
+});
 
 export const GoHomeButton = chakra(Button, {
   baseStyle: {

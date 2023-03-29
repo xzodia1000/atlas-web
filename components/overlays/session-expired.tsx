@@ -12,9 +12,7 @@ import { useRef } from 'react';
 import SignOut from '../../lib/sign-out';
 import { ModalButton } from '../../styles/components-styles';
 
-/**
- * Session expired overlay
- */
+// This is the session expired overlay modal
 const ServerError = () => {
   const router = useRouter();
   const cancelRef = useRef(null);

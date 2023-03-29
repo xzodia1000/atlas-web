@@ -22,17 +22,21 @@ import DetailDisplay from '../detail-display';
 
 const listType: { data: IDetails[] | null } = { data: null };
 
+// This is the post report modal
 const GetPostReport = ({ id, setModal }: any) => {
   const toast = useToast();
   const router = useRouter();
   const [report, setReport] = useState(listType);
 
+  // Function to get user report
   const { isLoading, isSuccess } = useQuery({
     queryKey: ['post-report'],
     queryFn: async () => {
+      // Get user report data from server
       return await client.get(`/report/post-reports/${id}`).then((res) => res.data.data[0]);
     },
     onSuccess(data: any) {
+      // Format the data into a format that can be displayed by the DetailDisplay component
       const tmpReport = {
         data: [
           { title: 'Report ID', des: data.id },
@@ -58,6 +62,7 @@ const GetPostReport = ({ id, setModal }: any) => {
         ]
       };
 
+      // Set the report data
       setReport(tmpReport);
     },
     onError: async (error: any) => {

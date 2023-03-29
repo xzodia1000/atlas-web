@@ -17,6 +17,7 @@ import client from '../../lib/axios-service';
 import { HandleError, HandleSuccess } from '../../lib/system-feedback';
 import { Field, InputField, SubmitButton } from '../../styles/components-styles';
 
+// This is the edit profile component
 export default function EditProfile() {
   const toast = useToast();
   const router = useRouter();
@@ -30,12 +31,15 @@ export default function EditProfile() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [address, setAddress] = useState('');
 
+  // Function to update profile
   const { isLoading, isSuccess, refetch } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
+      // Get profile data from server
       return await client.get('/user/profile').then((res) => res.data);
     },
     onSuccess: async (data) => {
+      // Set profile data to state
       setFirstName(data.firstName);
       setLastName(data.lastName);
       setEmail(data.email);
@@ -46,12 +50,15 @@ export default function EditProfile() {
       setAddress(data.address);
     },
     onError: async (error: any) => {
+      // Handle error
       HandleError({ error, toast, router });
     }
   });
 
+  // Function to update profile
   const { isLoading: updating, mutate: updateProfile } = useMutation<any, Error>({
     mutationFn: async () => {
+      // Update profile data on server
       return await Promise.all([
         client.patch(`/user/firstName?firstName=${firstName}`),
         client.patch(`/user/lastName?lastName=${lastName}`),
@@ -64,10 +71,12 @@ export default function EditProfile() {
       ]);
     },
     onSuccess: async () => {
+      // Refetch profile data to update state
       refetch();
       HandleSuccess({ message: 'Profile updated successfully', toast });
     },
     onError: async (error: any) => {
+      // Handle error
       HandleError({ error, toast, router });
     }
   });

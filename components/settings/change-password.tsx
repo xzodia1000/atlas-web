@@ -7,6 +7,7 @@ import client from '../../lib/axios-service';
 import { HandleError, HandleSuccess } from '../../lib/system-feedback';
 import { Field, InputField, SubmitButton } from '../../styles/components-styles';
 
+// This is the change password component
 export default function ChangePassword() {
   const toast = useToast();
   const router = useRouter();
@@ -15,9 +16,11 @@ export default function ChangePassword() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  // Function to update password
   const { isLoading: updating, mutate: updatePassword } = useMutation<any, Error>({
     mutationFn: async () => {
       if (currentPassword === newPassword) {
+        // Throw error if new password is the same as old password
         throw {
           response: {
             data: {
@@ -27,6 +30,7 @@ export default function ChangePassword() {
         };
       }
       if (newPassword !== confirmPassword) {
+        // Throw error if passwords do not match
         throw {
           response: {
             data: {
@@ -36,6 +40,7 @@ export default function ChangePassword() {
         };
       }
       if (newPassword.length < 8) {
+        // Throw error if password is less than 8 characters
         throw {
           response: {
             data: {
@@ -45,6 +50,7 @@ export default function ChangePassword() {
         };
       }
 
+      // Post data to server
       return await client.patch('/user/password', {
         currentPassword,
         password: newPassword,
@@ -52,9 +58,11 @@ export default function ChangePassword() {
       });
     },
     onSuccess: async () => {
+      // Show success message if password is updated successfully
       HandleSuccess({ message: 'Password updated successfully.', toast });
     },
     onError: async (error: any) => {
+      // Show error message if password is not updated successfully
       HandleError({ error, toast, router });
     }
   });

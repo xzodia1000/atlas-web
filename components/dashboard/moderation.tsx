@@ -10,11 +10,13 @@ import ContentTable from '../content-table';
 import DropdownMenu from '../dropdown-menu';
 import TableButtons from '../table-buttons';
 
+// Dynamic imports
 const GetUser = dynamic(() => import('../overlays/get-user').then((mod) => mod.default));
 const GetUserReport = dynamic(() =>
   import('../overlays/get-user-report').then((mod) => mod.default)
 );
 
+// Table headers
 const TableHeaders = [
   {
     title: 'Report ID',
@@ -39,6 +41,7 @@ const TableHeaders = [
   }
 ];
 
+// This is the reported users page
 const Moderation = () => {
   const toast = useToast();
   const router = useRouter();
@@ -52,6 +55,8 @@ const Moderation = () => {
   const [userModal, setUserModal] = useState('');
 
   const [TableContent, setTableContent] = useState([]);
+
+  // Sort menu options
   const SortMenuOptions = [
     {
       title: 'Newest',
@@ -71,20 +76,24 @@ const Moderation = () => {
     }
   ];
 
+  // Get reported users
   const { isLoading, isSuccess, refetch, isRefetching } = useQuery({
     queryKey: ['reported-users', page, sort],
     queryFn: async () => {
+      // Get reported users from the server
       return await client
         .get(`/report/reported-users?order=${sort}&page=${page}&take=10`)
         .then((res) => res.data);
     },
     onSuccess: async (data) => {
+      // Set pagination
       setPage(data.meta.page);
       setNextPage(!data.meta.hasNextPage);
       setPreviousPage(!data.meta.hasPreviousPage);
 
       const tmpTableContent: any = [];
       for (let i = 0; i < data.data.length; i++) {
+        // Format the data for the table content
         tmpTableContent[i] = {
           report: [
             {
@@ -116,6 +125,7 @@ const Moderation = () => {
         };
       }
 
+      // Set the table content
       setTableContent(tmpTableContent);
     },
     onError: async (error: any) => {
@@ -123,11 +133,14 @@ const Moderation = () => {
     }
   });
 
+  // Function to ban a user
   const { mutate: banUser } = useMutation({
     mutationFn: async ({ userid, reportid }: any) => {
+      // Ban the user
       await client.post(`/report/ban-user/${userid}/${reportid}`);
     },
     onSuccess: async () => {
+      // Refetch the data
       refetch();
       HandleSuccess({ message: 'User has been banned.', toast });
     },

@@ -91,14 +91,19 @@ export default function Login() {
     }
   });
 
+  // Function to check if user is an admin
   const { refetch } = useQuery({
     queryKey: ['checkAdmin'],
     enabled: false,
     queryFn: async () => {
+      // Set authorization header
       client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      // Axios get request to get user profile
       return await client.get('/user/profile').then((res) => res.data);
     },
     onSuccess: async (data) => {
+      // Check if user is an admin
       if (data.role !== 'admin') {
         notAdmin();
       } else {
@@ -113,12 +118,14 @@ export default function Login() {
         HandleSuccess({ message: 'Redirecting to dashboard', toast });
       }
     },
+    // Callbacks to handle error
     onError: async (error: any) => {
       setSigningIn(false);
       HandleError({ error, toast, router });
     }
   });
 
+  // Function to handle error if user is not an admin
   const notAdmin = () => {
     setSigningIn(false);
     HandleError({

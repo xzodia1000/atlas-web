@@ -12,13 +12,7 @@ import {
 import { IconExternalLink } from '@tabler/icons';
 import { TableButton, TableData, TableHeader } from '../styles/components-styles';
 
-/*
- * Module for displaying content table
- * @param headers - array of headers
- * @param content - array of content
- * @param success - boolean for if content is successfully fetched
- * @param loading - boolean for if content is loading
- */
+// This component is used to render the table for the reports
 const ContentTable = ({ headers, content, success, loading }: any) => {
   return (
     <TableContainer

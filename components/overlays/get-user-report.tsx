@@ -22,20 +22,24 @@ import DetailDisplay from '../detail-display';
 
 const listType: { data: IDetails[] | null } = { data: null };
 
+// This is the user report modal
 const GetUserReport = ({ id, setModal }: any) => {
   const toast = useToast();
   const router = useRouter();
   const [report, setReport] = useState(listType);
 
+  // Function to get user report
   const { isSuccess, isLoading } = useQuery({
     queryKey: ['user-report'],
     queryFn: async () => {
+      // Get user report data from server
       return await client
         .get(`/report/user-reports/${id}`)
         .then((res) => res.data.data[0])
         .then((data) => data);
     },
     onSuccess(data: any) {
+      // Format the data into a format that can be displayed by the DetailDisplay component
       const tmpReport = {
         data: [
           { title: 'Report ID', des: data.id },
@@ -53,9 +57,11 @@ const GetUserReport = ({ id, setModal }: any) => {
         ]
       };
 
+      // Set the report data
       setReport(tmpReport);
     },
     onError: async (error: any) => {
+      // Handle error
       HandleError({ error, toast, router });
     }
   });

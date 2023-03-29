@@ -23,17 +23,21 @@ import DetailDisplay from '../detail-display';
 
 const listType: { data: IDetails[] | null } = { data: null };
 
+// This is the modal that pops up when you click on a user in the user list
 const GetUser = ({ id, setModal }: any) => {
   const toast = useToast();
   const router = useRouter();
   const [user, setUser] = useState(listType);
 
+  // This is the query that gets the user data
   const { data, isLoading, isSuccess } = useQuery({
     queryKey: ['user'],
     queryFn: async () => {
+      // Get user data from server
       return await client.get(`/user/profile/${id}`).then((res) => res.data);
     },
     onSuccess(data: any) {
+      // Format the data into a format that can be displayed by the DetailDisplay component
       const tmpUser = {
         data: [
           { title: 'User ID', des: data.id },
@@ -54,9 +58,11 @@ const GetUser = ({ id, setModal }: any) => {
         ]
       };
 
+      // Set the user data
       setUser(tmpUser);
     },
     onError: async (error: any) => {
+      // Handle error
       HandleError({ error, toast, router });
     }
   });

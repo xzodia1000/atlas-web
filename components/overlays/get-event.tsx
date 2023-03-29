@@ -22,17 +22,21 @@ import DetailDisplay from '../detail-display';
 
 const listType: { data: IDetails[] | null } = { data: null };
 
+// This is the event report modal
 const GetEventReport = ({ id, setModal }: any) => {
   const toast = useToast();
   const router = useRouter();
   const [report, setReport] = useState(listType);
 
+  // Function to get event report
   const { isLoading, isSuccess } = useQuery({
     queryKey: ['event'],
     queryFn: async () => {
+      // Get event report data from server
       return await client.get(`/event/${id}`).then((res) => res.data);
     },
     onSuccess(data: any) {
+      // Format the data into a format that can be displayed by the DetailDisplay component
       const tmpReport = {
         data: [
           { title: 'Event ID', des: data.id },
@@ -53,6 +57,7 @@ const GetEventReport = ({ id, setModal }: any) => {
         ]
       };
 
+      // Set the report data
       setReport(tmpReport);
     },
     onError: async (error: any) => {

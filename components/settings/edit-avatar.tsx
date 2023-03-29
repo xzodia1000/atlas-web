@@ -7,41 +7,48 @@ import client from '../../lib/axios-service';
 import { HandleError, HandleSuccess } from '../../lib/system-feedback';
 import { SubmitButton, EditButton } from '../../styles/components-styles';
 
+// This is the edit avatar component
 export default function EditProfile() {
   const toast = useToast();
   const router = useRouter();
 
-  const inputFile = useRef<HTMLInputElement | null>(null);
-  const [avatar, setAvatar] = useState<File | null>(null);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const inputFile = useRef<HTMLInputElement | null>(null); // Reference to input file
+  const [avatar, setAvatar] = useState<File | null>(null); // State to store avatar
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null); // State to store avatar url
 
+  // Function to get current avatar
   const { data, isLoading, isSuccess, refetch } = useQuery({
     queryKey: ['avatar'],
     queryFn: async () => {
+      // Get current avatar from server
       return await client.get('/user/avatar').then((res) => res.data);
     },
     onSuccess: async (data) => {
+      // Set avatar url
       setAvatarUrl(data.profilePictureUrl);
     },
     onError: async (error: any) => {
+      // Handle error
       HandleError({ error, toast, router });
     }
   });
 
+  // Function to update avatar
   const { isLoading: updating, mutate: updateAvatar } = useMutation<any, Error>({
     mutationFn: async () => {
-      if (avatar === null) return;
-      const formData = new FormData();
-      formData.append('avatar', avatar);
-      console.log('image' + formData.get('avatar'));
+      if (avatar === null) return; // Return if no avatar is selected
+      const formData = new FormData(); // Create new form data
+      formData.append('avatar', avatar); // Append avatar image file to form data
 
       if (data !== '') {
+        // If avatar already exists, use patch request
         return await client.patch('/user/avatar', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         });
       } else {
+        // If avatar does not exist, use post request
         return await client.post('/user/avatar', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
@@ -50,25 +57,29 @@ export default function EditProfile() {
       }
     },
     onSuccess: async () => {
-      setAvatar(null);
-      refetch();
-      HandleSuccess({ message: 'Avatar updated', toast });
+      setAvatar(null); // Set avatar url to null to force image to reload
+      refetch(); // Refetch avatar
+      HandleSuccess({ message: 'Avatar updated', toast }); // Handle success
     },
     onError: async (error: any) => {
+      // Handle error
       HandleError({ error, toast, router });
     }
   });
 
+  // Function to delete avatar
   const { isLoading: deleting, mutate: deleteAvatar } = useMutation<any, Error>({
     mutationFn: async () => {
+      // Delete avatar from server
       return await client.delete('/user/avatar');
     },
     onSuccess: async () => {
-      setAvatarUrl(null);
-      refetch();
-      HandleSuccess({ message: 'Avatar deleted', toast });
+      setAvatarUrl(null); // Set avatar url to null to force image to reload
+      refetch(); // Refetch avatar
+      HandleSuccess({ message: 'Avatar deleted', toast }); // Handle success
     },
     onError: async (error: any) => {
+      // Handle error
       HandleError({ error, toast, router });
     }
   });

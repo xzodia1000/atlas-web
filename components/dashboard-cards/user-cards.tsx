@@ -9,6 +9,7 @@ import client from '../../lib/axios-service';
 import { HandleError } from '../../lib/system-feedback';
 import DetailDisplay from '../detail-display';
 
+// This is the user card chakra component
 const UserCardContainer = chakra(Box, {
   baseStyle: {
     h: '100%',
@@ -22,17 +23,21 @@ const UserCardContainer = chakra(Box, {
 
 const listType: { data: IDetails[] | null } = { data: null };
 
+// User details card
 const UserCard = () => {
   const toast = useToast();
   const router = useRouter();
   const [userDetails, setUserDetails] = useState(listType);
 
+  // Function to get user details
   const { isLoading, isSuccess, data } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
+      // Get user details from server
       return await client.get('/user/profile').then((res) => res.data);
     },
     onSuccess: (data: any) => {
+      // Format the data into a format that can be displayed by the DetailDisplay component
       const tmpUserDetails = {
         data: [
           { title: 'Username', des: data.username },
@@ -41,6 +46,7 @@ const UserCard = () => {
         ]
       };
 
+      // Set the user details
       setUserDetails(tmpUserDetails);
     },
     onError: (error: any) => {
@@ -69,17 +75,19 @@ const UserCard = () => {
   );
 };
 
+// User stats card
 const UserStatCard = () => {
-  const toast = useToast();
-  const router = useRouter();
   const [userDetails, setUserDetails] = useState(listType);
 
+  // Function to get user details
   const { isLoading, isSuccess } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
+      // Get user details from server
       return await client.get('/user/profile').then((res) => res.data);
     },
     onSuccess: (data: any) => {
+      // Format the data into a format that can be displayed by the DetailDisplay component
       const tmpUserDetails = {
         data: [
           { title: 'ID', des: data.id },
@@ -88,10 +96,8 @@ const UserStatCard = () => {
         ]
       };
 
+      // Set the user details
       setUserDetails(tmpUserDetails);
-    },
-    onError: (error: any) => {
-      // HandleError({ error, toast, router });
     }
   });
 
@@ -115,27 +121,28 @@ const UserStatCard = () => {
   );
 };
 
+// User avatar card
 const UserAvatarCard = () => {
-  const toast = useToast();
-  const router = useRouter();
   const [userDetails, setUserDetails] = useState(listType);
 
+  // Function to get user details
   const { isLoading, isSuccess, data } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
+      // Get user details from server
       return await client.get('/user/profile').then((res) => res.data);
     },
     onSuccess: (data: any) => {
+      // Format the data into a format that can be displayed by the DetailDisplay component
       const tmpUserDetails = {
         data: [
           { title: 'Profile Picture ID', des: data.profilePictureId },
           { title: 'Profile Picture Expiry', des: data.profilePictureExpiryDate.substring(0, 10) }
         ]
       };
+
+      // Set the user details
       setUserDetails(tmpUserDetails);
-    },
-    onError: (error: any) => {
-      // HandleError({ error, toast, router });
     }
   });
 
