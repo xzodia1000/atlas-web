@@ -55,10 +55,10 @@ test.describe('Reported Posts', () => {
   });
 
   test('next button works as expected', async ({ page }) => {
-    const nextButton = await page.$('#next');
+    await page.waitForSelector('#next');
   });
 
   test('previous button works as expected', async ({ page }) => {
-    const previousButton = await page.$('#previous');
+    await page.waitForSelector('#previous');
   });
 });
