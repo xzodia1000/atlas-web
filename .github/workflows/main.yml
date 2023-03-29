@@ -17,12 +17,12 @@ jobs:
         run: yarn
       - name: Build project
         run: yarn build
-      - name: Start local server
-        run: yarn start &
-      - name: Wait for the server to be ready
-        run: sleep 10s
-      - name: Install Playwright Browsers
-        run: yarn playwright install --with-deps
+      # - name: Start local server
+      #   run: yarn start &
+      # - name: Wait for the server to be ready
+      #   run: sleep 10s
+      # - name: Install Playwright Browsers
+      #   run: yarn playwright install --with-deps
       # - name: Run Playwright tests
       # run: yarn playwright test
       - name: Deploy Site
