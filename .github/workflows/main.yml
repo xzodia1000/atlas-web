@@ -1,4 +1,4 @@
-name: Playwright Tests
+name: Test and Deploy Site
 on:
   push:
     branches: [main, master]
@@ -29,7 +29,12 @@ jobs:
         env:
           NETLIFY_SITE_ID: ${{ secrets.NETLFY_APP_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN }}
-        run: netlify deploy --prod
+        run: |
+          if [[ $GITHUB_REF == 'refs/heads/main' ]] || [[ $GITHUB_REF == 'refs/heads/master' ]]; then
+            netlify deploy --prod
+          else
+            netlify deploy --branch=$GITHUB_REF
+          fi
       - uses: actions/upload-artifact@v3
         if: always()
         with:
