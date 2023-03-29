@@ -1,9 +1,4 @@
-/**
- * Module for handling success responses
- * @param message - message to be displayed
- * @param toast - chakra toast
- * @returns success toast with message
- */
+// Toast for handling success responses
 export const HandleSuccess = ({ message, toast }: any) => {
   return toast({
     title: 'Success!',
@@ -15,20 +10,14 @@ export const HandleSuccess = ({ message, toast }: any) => {
   });
 };
 
-/**
- * Module for handling error responses
- * @param error - error response
- * @param toast - chakra toast
- * @param router - next router
- * @returns error toast with message
- * @returns redirect to login page when token expires
- * @returns redirect to server error page when server error occurs
- */
+// Toast for handling error responses
 export const HandleError = ({ error, toast, router }: any) => {
   try {
+    // If the token is expired, open the session expired modal
     if (error.response.data.message === 'Unauthorized') {
       router.push('/dashboard#session-expired');
     } else {
+      // Otherwise, open the error toast
       return toast({
         title: 'Error!',
         description: error.response.data.message,
@@ -39,6 +28,7 @@ export const HandleError = ({ error, toast, router }: any) => {
       });
     }
   } catch (error) {
+    // If the server is down, open the server error modal
     if (router.pathname !== '/dashboard#server-error') {
       router.push('/dashboard#server-error');
     }
